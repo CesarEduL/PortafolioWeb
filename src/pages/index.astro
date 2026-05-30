@@ -1,0 +1,28 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import About from "../components/About.astro";
+import Skills from "../components/Skills.astro";
+import Projects from "../components/Projects.astro";
+import Stats from "../components/Stats.astro";
+import Contact from "../components/Contact.astro";
+import Footer from "../components/Footer.astro";
+import { siteConfig } from "../config/site";
+import { fetchGitHubRepos } from "../lib/github";
+
+const repos = await fetchGitHubRepos(siteConfig.githubUsername);
+---
+
+<Layout title={siteConfig.title}>
+  <Header />
+  <main class="flex-grow pt-24 pb-margin-desktop md:pb-32 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto space-y-24 md:space-y-32">
+    <Hero />
+    <About />
+    <Skills />
+    <Projects repos={repos} />
+    <Stats />
+  </main>
+  <Contact />
+  <Footer />
+</Layout>

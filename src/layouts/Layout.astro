@@ -1,0 +1,120 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "Cesar Eduardo - Portfolio" } = Astro.props;
+---
+
+<!doctype html>
+<html class="dark scroll-smooth" lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Portafolio de Cesar Eduardo - Android Developer & Software Developer" />
+    <title>{title}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-background text-on-surface font-body-base antialiased min-h-screen flex flex-col relative overflow-x-hidden selection:bg-primary/30 selection:text-primary"
+  >
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-[-1]">
+      <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px] animate-blob"></div>
+      <div
+        class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[120px] animate-blob animation-delay-2000"
+      >
+      </div>
+      <div
+        class="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-tertiary/10 blur-[120px] animate-blob animation-delay-4000"
+      >
+      </div>
+    </div>
+
+    <slot />
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "0px",
+          threshold: 0.1,
+        };
+
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              obs.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll(".fade-in-up").forEach((element) => {
+          observer.observe(element);
+        });
+
+        setTimeout(() => {
+          const firstSection = document.getElementById("inicio");
+          if (firstSection) firstSection.classList.add("visible");
+        }, 100);
+      });
+
+      const sections = document.querySelectorAll("section[id]");
+      const navLinks = document.querySelectorAll(".nav-desktop-link");
+
+      window.addEventListener("scroll", () => {
+        let current = "";
+        sections.forEach((section) => {
+          const sectionTop = (section as HTMLElement).offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (window.pageYOffset >= sectionTop - sectionHeight / 3) {
+            current = section.getAttribute("id") ?? "";
+          }
+        });
+
+        navLinks.forEach((link) => {
+          link.classList.remove("text-primary", "nav-active");
+          link.classList.add("text-on-surface-variant");
+          if (link.getAttribute("href")?.includes(current) && current !== "") {
+            link.classList.remove("text-on-surface-variant");
+            link.classList.add("text-primary", "nav-active");
+          }
+        });
+
+        const nav = document.getElementById("mainNav");
+        if (nav) {
+          if (window.scrollY > 50) {
+            nav.classList.add("shadow-md");
+          } else {
+            nav.classList.remove("shadow-md");
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .nav-active::after {
+    content: "";
+    position: absolute;
+    bottom: -0.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0.25rem;
+    height: 0.25rem;
+    background-color: #c3e6ff;
+    border-radius: 9999px;
+  }
+</style>

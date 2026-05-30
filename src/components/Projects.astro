@@ -1,0 +1,63 @@
+---
+import type { GitHubRepo } from "../lib/github";
+
+interface Props {
+  repos: GitHubRepo[];
+}
+
+const { repos } = Astro.props;
+---
+
+<section class="scroll-mt-24 fade-in-up" id="proyectos">
+  <h2 class="font-headline-md text-headline-md text-primary mb-xl flex items-center gap-md">
+    <span class="material-symbols-outlined">code_blocks</span>
+    Proyectos
+    <div class="h-px bg-gradient-to-r from-outline-glass to-transparent flex-grow ml-md"></div>
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+    {
+      repos.map((repo) => (
+        <div class="glass-panel p-lg rounded-2xl neon-border hover-lift flex flex-col h-full">
+          <div class="flex justify-between items-start mb-md gap-sm">
+            <h3 class="font-body-bold text-lg text-primary truncate">{repo.name}</h3>
+            {repo.language && (
+              <span class="px-2 py-1 bg-surface-variant text-on-surface-variant text-xs rounded-md font-code-sm border border-outline-glass shrink-0">
+                {repo.language}
+              </span>
+            )}
+          </div>
+          <p class="font-body-base text-sm text-on-surface-variant flex-grow mb-lg">
+            {repo.description ?? "Sin descripción disponible."}
+          </p>
+          <div class="flex items-center gap-sm mt-auto pt-md border-t border-outline-glass">
+            <a
+              class="btn-secondary text-xs flex items-center gap-1 flex-1 justify-center py-2"
+              href={repo.html_url}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <span class="material-symbols-outlined text-[16px]">code</span> GitHub
+            </a>
+            {
+              repo.homepage ? (
+                <a
+                  class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
+                  href={repo.homepage}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <span class="material-symbols-outlined text-[16px]">open_in_new</span> Demo
+                </a>
+              ) : (
+                <span class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2 opacity-40 cursor-not-allowed">
+                  <span class="material-symbols-outlined text-[16px]">open_in_new</span> Demo
+                </span>
+              )
+            }
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>

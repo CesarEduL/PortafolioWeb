@@ -1,0 +1,26 @@
+---
+import { siteConfig } from "../config/site";
+const year = new Date().getFullYear();
+---
+
+<footer class="w-full py-12 bg-surface-container-lowest border-t border-outline-glass mt-auto relative z-10">
+  <div class="flex flex-col md:flex-row justify-between items-center px-gutter gap-md max-w-7xl mx-auto">
+    <div class="font-label-caps text-label-caps text-on-surface">
+      © {year} {siteConfig.name}. Crafted with Tokyo Night Aesthetic.
+    </div>
+    <div class="flex items-center gap-md font-code-sm text-code-sm">
+      <a
+        class="text-on-surface-variant hover:text-warning-neon transition-colors opacity-80 hover:opacity-100 hover:-translate-y-1 transform duration-300"
+        href={siteConfig.linkedinUrl}
+        rel="noopener noreferrer"
+        target="_blank">LinkedIn</a
+      >
+      <a
+        class="text-on-surface-variant hover:text-warning-neon transition-colors opacity-80 hover:opacity-100 hover:-translate-y-1 transform duration-300"
+        href={siteConfig.githubUrl}
+        rel="noopener noreferrer"
+        target="_blank">GitHub</a
+      >
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,20 @@
+{
+  "name": "portafolio-web",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/run-with-ca.mjs dev",
+    "build": "node scripts/run-with-ca.mjs build",
+    "preview": "node scripts/run-with-ca.mjs preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^5.7.10",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

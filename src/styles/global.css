@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-surface/65 backdrop-blur-[12px] border border-outline-glass;
+  }
+
+  .neon-border {
+    @apply border border-outline-glass hover:border-primary transition-colors duration-300;
+  }
+
+  .glow-primary {
+    @apply hover:shadow-[0_0_15px_rgba(195,230,255,0.4)] transition-shadow duration-300;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-container to-secondary-container text-text-primary px-lg py-sm rounded-lg font-body-bold text-body-bold glow-primary border border-outline-glass relative overflow-hidden motion-safe:hover:scale-105 transition-transform duration-300;
+  }
+
+  .btn-primary::after {
+    content: "";
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full motion-safe:hover:animate-[shimmer_1.5s_infinite];
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-primary px-lg py-sm rounded-lg font-body-bold text-body-bold border border-primary hover:bg-primary/10 transition-all duration-300 relative overflow-hidden motion-safe:hover:scale-105;
+  }
+
+  .btn-secondary::after {
+    content: "";
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full motion-safe:hover:animate-[shimmer_1.5s_infinite];
+  }
+
+  .fade-in-up {
+    @apply opacity-0 translate-y-8 transition-all duration-700 ease-out;
+  }
+
+  .fade-in-up.visible {
+    @apply opacity-100 translate-y-0;
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-in-up {
+      @apply opacity-100 translate-y-0 transition-none;
+    }
+
+    .animate-blob {
+      animation: none;
+    }
+
+    .btn-primary::after,
+    .btn-secondary::after {
+      display: none;
+    }
+
+    .btn-primary:hover,
+    .btn-secondary:hover {
+      transform: none;
+    }
+
+    .hover-lift {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .profile-img-container {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  .hover-lift {
+    @apply motion-safe:transition-all motion-safe:duration-300 motion-safe:hover:-translate-y-2 motion-safe:hover:shadow-[0_10px_30px_rgba(125,207,255,0.1)];
+  }
+}

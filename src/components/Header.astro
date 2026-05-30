@@ -1,0 +1,83 @@
+---
+import { siteConfig } from "../config/site";
+
+const navItems = [
+  { href: "#inicio", label: "Inicio" },
+  { href: "#sobre-mi", label: "Sobre Mí" },
+  { href: "#habilidades", label: "Habilidades" },
+  { href: "#proyectos", label: "Proyectos" },
+  { href: "#estadisticas", label: "Estadísticas" },
+];
+---
+
+<nav
+  class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-glass shadow-sm transition-all duration-300"
+  id="mainNav"
+>
+  <div class="flex justify-between items-center h-16 px-gutter max-w-7xl mx-auto">
+    <a
+      class="font-headline-md text-headline-md font-extrabold text-primary tracking-tighter hover:text-primary-fixed-dim transition-colors"
+      href="#inicio"
+    >
+      {siteConfig.name}
+    </a>
+
+    <div class="hidden md:flex items-center gap-lg">
+      {
+        navItems.map((item, index) => (
+          <a
+            class:list={[
+              "nav-desktop-link relative font-body-bold text-body-bold hover:bg-primary/10 rounded-lg px-sm py-xs transition-all active:scale-95",
+              index === 0 ? "text-primary nav-active" : "text-on-surface-variant hover:text-primary",
+            ]}
+            href={item.href}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </div>
+
+    <a class="hidden md:inline-flex btn-secondary text-sm" href="#contacto">Contactar</a>
+
+    <button
+      aria-label="Abrir menú"
+      class="md:hidden text-primary p-xs hover:bg-primary/10 rounded-lg"
+      id="mobileMenuToggle"
+      type="button"
+    >
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+  </div>
+
+  <div class="hidden md:hidden border-t border-outline-glass bg-surface/95" id="mobileMenu">
+    <div class="flex flex-col gap-sm px-gutter py-md">
+      {
+        navItems.map((item) => (
+          <a
+            class="text-on-surface-variant hover:text-primary font-body-bold text-body-bold hover:bg-primary/10 rounded-lg px-sm py-xs transition-all"
+            href={item.href}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a class="btn-secondary text-sm text-center mt-sm" href="#contacto">Contactar</a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const toggle = document.getElementById("mobileMenuToggle");
+  const menu = document.getElementById("mobileMenu");
+
+  toggle?.addEventListener("click", () => {
+    menu?.classList.toggle("hidden");
+  });
+
+  menu?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      menu?.classList.add("hidden");
+    });
+  });
+</script>
