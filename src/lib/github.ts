@@ -16,7 +16,7 @@ const FALLBACK_REPOS: GitHubRepo[] = [
     id: 1,
     name: "Portfolio_v2",
     description: "Personal portfolio built with modern web technologies and a sleek dark theme.",
-    html_url: "https://github.com/cesaredul",
+    html_url: "https://github.com/CesarEduL",
     homepage: null,
     language: "Vue",
     stargazers_count: 0,

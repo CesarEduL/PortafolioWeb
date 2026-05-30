@@ -1,15 +1,23 @@
 ---
-import { siteConfig } from "../config/site";
+import { getSkillsIconsUrl } from "../config/site";
+
+const skillsUrl = getSkillsIconsUrl();
 ---
 
-<section class="scroll-mt-24 fade-in-up" id="habilidades">
+<section class="scroll-mt-24 fade-in-up" id="tecnologias">
   <h2 class="font-headline-md text-headline-md text-primary mb-xl flex items-center gap-md">
     <span class="material-symbols-outlined">build</span>
-    Habilidades
+    Tecnologías y herramientas
     <div class="h-px bg-gradient-to-r from-outline-glass to-transparent flex-grow ml-md"></div>
   </h2>
 
   <div class="glass-panel p-xl rounded-2xl neon-border relative overflow-hidden hover-lift flex justify-center">
-    <img alt="Mis Habilidades" class="w-full h-auto max-w-4xl rounded-lg" src={siteConfig.skillsImage} />
+    <img
+      alt="Tecnologías y herramientas"
+      class="w-full h-auto max-w-4xl rounded-lg"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      src={skillsUrl}
+    />
   </div>
 </section>
