@@ -1,18 +1,18 @@
 ---
-title: "Android y consumo de APIs"
-description: "Notas sobre estructurar llamadas HTTP y mostrar datos en tiempo real."
+title: "Nota para mí: Android y las APIs"
+description: "Me apunto cómo no enredarme otra vez con la capa de red en AlertaDolar."
 pubDate: 2026-03-15
 tags: ["android", "kotlin", "api"]
 locale: es
 draft: false
 ---
 
-En apps como **AlertaDolar**, separar la capa de red del UI simplifica pruebas y cambios de proveedor.
+En **AlertaDolar** aprendí que si mezclo las llamadas HTTP con la UI me arrepiento después. Separar capa de red y pantalla me salvó cuando tuve que tocar el proveedor de datos.
 
-### Buenas prácticas que uso
+### Lo que me conviene repetir
 
-- Modelos de datos claros (DTO → dominio).
-- Manejo de errores visible para el usuario.
-- Caché ligera cuando el dato no cambia cada segundo.
+- DTO y dominio separados: no acoples el JSON crudo a las vistas.
+- Si falla la red, el usuario tiene que enterarse; un spinner eterno no cuenta.
+- Caché ligera cuando el dato no cambia cada segundo — no sobrecompliquees de más.
 
-Puedes ampliar esta nota con capturas de tu app y fragmentos de código cuando quieras.
+Cuando vuelvas a este proyecto, añade capturas y un fragmento de código que te hayan funcionado. Tu yo del futuro te lo agradecerá.
