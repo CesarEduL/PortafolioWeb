@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const caFile = join(root, "certs", "avast-root.pem");
 
-if (existsSync(caFile)) {
+if (existsSync(caFile) && !process.env.CI) {
   process.env.NODE_EXTRA_CA_CERTS = caFile;
 }
 

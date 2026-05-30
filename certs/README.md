@@ -2,7 +2,7 @@
 
 Si usas **Avast** con escaneo SSL/TLS activo, npm falla con `UNABLE_TO_VERIFY_LEAF_SIGNATURE` porque Node no confía en el certificado intermedio de Avast.
 
-Este proyecto incluye `avast-root.pem` exportado del almacén de certificados de Windows para que `npm install` funcione con verificación SSL activa.
+Este proyecto **no incluye** `avast-root.pem` en Git (cada máquina lo genera). Copia `.npmrc.example` a `.npmrc` en la raíz del proyecto.
 
 ## Si el error persiste o no usas Avast
 

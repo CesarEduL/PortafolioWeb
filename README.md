@@ -18,6 +18,8 @@ Portafolio estático construido con **Astro + Tailwind CSS**. Se puede desplegar
 # Ya estás en la carpeta PortafolioWeb
 npm install
 cp .env.example .env
+# Solo si usas Avast y npm falla con UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+cp .npmrc.example .npmrc
 ```
 
 Edita `.env` con tus valores reales (ver sección de variables más abajo).
@@ -243,9 +245,10 @@ PortafolioWeb/
 
 **Causa habitual en Windows:** tu antivirus (en tu PC es **Avast**) intercepta conexiones HTTPS hacia `registry.npmjs.org` y presenta un certificado propio que Node.js no reconoce.
 
-**Solución ya incluida en este repo:** el archivo `.npmrc` apunta a `certs/avast-root.pem` (certificado raíz de Avast exportado de Windows).
+**Solución en tu PC (Avast):** copia `.npmrc.example` → `.npmrc` y exporta `certs/avast-root.pem` (ver `certs/README.md`). Esos archivos **no van al repo** — en GitHub Actions no hace falta Avast.
 
 ```bash
+cp .npmrc.example .npmrc
 npm install
 ```
 

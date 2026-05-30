@@ -1,0 +1,4 @@
+# Solo desarrollo local con Avast (escaneo HTTPS).
+# Copia a .npmrc:  cp .npmrc.example .npmrc
+# NO subas .npmrc al repo — en CI no hace falta.
+cafile=./certs/avast-root.pem

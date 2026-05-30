@@ -9,8 +9,12 @@ dist/
 .env.*
 !.env.example
 
-# cert export temp
+# npm local (Avast) — solo en tu máquina
+.npmrc
+
+# cert export temp / local
 certs/*.cer
+certs/avast-root.pem
 
 # logs
 npm-debug.log*
