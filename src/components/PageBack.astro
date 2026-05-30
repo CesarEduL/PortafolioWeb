@@ -1,0 +1,19 @@
+---
+import { routes } from "../lib/navigation";
+import { ui, type UiKey } from "../i18n/ui";
+
+interface Props {
+  href?: string;
+  labelKey?: UiKey;
+}
+
+const { href = routes.home, labelKey = "nav.home" } = Astro.props;
+---
+
+<a
+  class="page-back inline-flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary transition-colors w-fit"
+  href={href}
+>
+  <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+  <span data-i18n={labelKey}>{ui.es[labelKey]}</span>
+</a>

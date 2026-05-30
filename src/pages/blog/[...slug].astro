@@ -17,12 +17,8 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<PageLayout title={`${post.data.title} — ${siteConfig.name}`}>
-  <div class="max-w-3xl mx-auto w-full">
-    <a class="text-primary text-sm hover:underline mb-lg inline-flex items-center gap-1" href={routes.blog}>
-      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-      Blog
-    </a>
+<PageLayout backHref={routes.blog} backLabelKey="nav.blog" title={`${post.data.title} — ${siteConfig.name}`}>
+  <div class="max-w-3xl w-full">
     <article class="glass-panel p-xl rounded-2xl neon-border">
       <time class="font-code-sm text-code-sm text-secondary" datetime={post.data.pubDate.toISOString()}>
         {post.data.pubDate.toLocaleDateString("es-PE", {

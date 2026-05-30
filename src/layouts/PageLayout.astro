@@ -2,20 +2,31 @@
 import Layout from "./Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import PageBack from "../components/PageBack.astro";
+import { routes } from "../lib/navigation";
+import type { UiKey } from "../i18n/ui";
 
 interface Props {
   title: string;
+  showBack?: boolean;
+  backHref?: string;
+  backLabelKey?: UiKey;
 }
 
-const { title } = Astro.props;
+const { title, showBack = true, backHref = routes.home, backLabelKey = "nav.home" } = Astro.props;
 ---
 
 <Layout title={title}>
-  <Header />
+  <Header transition:persist />
   <main
-    class="flex-grow pt-24 pb-margin-desktop md:pb-32 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto space-y-24 md:space-y-32"
+    class="flex-grow pt-20 pb-margin-desktop md:pb-28 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto"
   >
-    <slot />
+    <div class="page-inner flex flex-col" transition:name="page-main">
+      {showBack && <PageBack href={backHref} labelKey={backLabelKey} />}
+      <div class:list={["page-body flex flex-col gap-16 md:gap-20", showBack && "mt-md md:mt-lg"]}>
+        <slot />
+      </div>
+    </div>
   </main>
-  <Footer />
+  <Footer transition:persist />
 </Layout>

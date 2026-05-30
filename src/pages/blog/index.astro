@@ -2,7 +2,6 @@
 import { getCollection } from "astro:content";
 import PageLayout from "../../layouts/PageLayout.astro";
 import { siteConfig } from "../../config/site";
-import { routes } from "../../lib/navigation";
 import { blogPostUrl } from "../../lib/blog";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
@@ -11,11 +10,7 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
 ---
 
 <PageLayout title={`Blog — ${siteConfig.name}`}>
-  <div class="max-w-4xl mx-auto w-full">
-    <a class="text-primary text-sm hover:underline mb-lg inline-flex items-center gap-1" href={routes.home}>
-      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-      <span data-i18n="blog.back">Volver al inicio</span>
-    </a>
+  <div class="max-w-4xl w-full">
     <h1 class="font-display-lg text-display-lg text-text-primary mb-xl" data-i18n="sections.blog">Blog y notas</h1>
 
     <div class="space-y-lg">

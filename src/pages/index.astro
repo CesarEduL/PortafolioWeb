@@ -10,14 +10,15 @@ import { siteConfig } from "../config/site";
 ---
 
 <Layout title={siteConfig.title}>
-  <Header />
+  <Header transition:persist />
   <main
     class="flex-grow pt-24 pb-margin-desktop md:pb-32 px-margin-mobile md:px-margin-desktop w-full max-w-7xl mx-auto space-y-24 md:space-y-32"
+    transition:name="page-main"
   >
     <Hero />
     <About />
     <Skills />
     <Contact />
   </main>
-  <Footer />
+  <Footer transition:persist />
 </Layout>
