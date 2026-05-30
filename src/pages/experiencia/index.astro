@@ -1,0 +1,14 @@
+---
+import PageLayout from "../../layouts/PageLayout.astro";
+import Experience from "../../components/Experience.astro";
+import { siteConfig } from "../../config/site";
+import { routes } from "../../lib/navigation";
+---
+
+<PageLayout title={`Experiencia — ${siteConfig.name}`}>
+  <a class="text-primary text-sm hover:underline inline-flex items-center gap-1 -mb-md" href={routes.home}>
+    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+    <span data-i18n="nav.home">Inicio</span>
+  </a>
+  <Experience />
+</PageLayout>

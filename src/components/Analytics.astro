@@ -1,0 +1,16 @@
+---
+import { publicEnv } from "../config/env";
+
+const { plausibleDomain, umamiWebsiteId, umamiScriptUrl } = publicEnv;
+---
+
+{
+  plausibleDomain && (
+    <script defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" />
+  )
+}
+{
+  umamiWebsiteId && (
+    <script defer src={umamiScriptUrl} data-website-id={umamiWebsiteId} />
+  )
+}

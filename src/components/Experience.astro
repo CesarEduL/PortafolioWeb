@@ -1,0 +1,75 @@
+---
+import { experienceItems, type ExperienceType } from "../data/experience";
+
+const typeIcon: Record<ExperienceType, string> = {
+  work: "work",
+  education: "school",
+  certificate: "verified",
+};
+
+const typeLabelKey: Record<ExperienceType, string> = {
+  work: "experience.work",
+  education: "experience.education",
+  certificate: "experience.certificate",
+};
+---
+
+<section class="scroll-mt-24 fade-in-up" id="experiencia">
+  <h2 class="font-headline-md text-headline-md text-primary mb-sm flex items-center gap-md">
+    <span class="material-symbols-outlined">timeline</span>
+    <span data-i18n="sections.experience">Experiencia y formación</span>
+    <div class="h-px bg-gradient-to-r from-outline-glass to-transparent flex-grow ml-md"></div>
+  </h2>
+  <p class="text-on-surface-variant text-sm mb-xl max-w-3xl" data-i18n="sections.experienceSub">
+    Trayectoria académica, proyectos y certificados.
+  </p>
+
+  <div class="relative pl-8 md:pl-12">
+    <div class="absolute left-3 md:left-5 top-2 bottom-2 w-px bg-gradient-to-b from-primary via-secondary to-transparent"></div>
+
+    <div class="space-y-xl">
+      {
+        experienceItems.map((item) => (
+          <article class="relative glass-panel p-lg rounded-2xl neon-border hover-lift">
+            <div class="absolute -left-8 md:-left-12 top-6 w-6 h-6 rounded-full bg-primary border-4 border-background flex items-center justify-center">
+              <span class="material-symbols-outlined text-background text-[14px]">
+                {typeIcon[item.type]}
+              </span>
+            </div>
+            <div class="flex flex-wrap items-center gap-sm mb-sm">
+              <span class="font-label-caps text-label-caps text-secondary tracking-widest" data-i18n={typeLabelKey[item.type]}>
+                {item.type === "work" ? "Experiencia" : item.type === "education" ? "Educación" : "Certificado"}
+              </span>
+              <span class="text-xs text-on-surface-variant font-code-sm">{item.period}</span>
+            </div>
+            <h3
+              class="font-body-bold text-lg text-primary bilingual"
+              data-i18n-es={item.title.es}
+              data-i18n-en={item.title.en}
+            >
+              {item.title.es}
+            </h3>
+            <p
+              class="text-sm text-secondary font-body-bold mb-sm bilingual"
+              data-i18n-es={item.organization.es}
+              data-i18n-en={item.organization.en}
+            >
+              {item.organization.es}
+            </p>
+            {
+              item.description && (
+                <p
+                  class="text-sm text-on-surface-variant bilingual"
+                  data-i18n-es={item.description.es}
+                  data-i18n-en={item.description.en}
+                >
+                  {item.description.es}
+                </p>
+              )
+            }
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

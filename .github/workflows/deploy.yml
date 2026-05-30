@@ -39,6 +39,9 @@ jobs:
           PUBLIC_GITHUB_USERNAME: ${{ vars.PUBLIC_GITHUB_USERNAME }}
           PUBLIC_WEB3FORMS_ACCESS_KEY: ${{ secrets.PUBLIC_WEB3FORMS_ACCESS_KEY }}
           PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+          PUBLIC_PLAUSIBLE_DOMAIN: ${{ vars.PUBLIC_PLAUSIBLE_DOMAIN }}
+          PUBLIC_UMAMI_WEBSITE_ID: ${{ vars.PUBLIC_UMAMI_WEBSITE_ID }}
+          PUBLIC_UMAMI_SCRIPT_URL: ${{ vars.PUBLIC_UMAMI_SCRIPT_URL }}
           GH_API_TOKEN: ${{ secrets.GH_API_TOKEN }}
           BASE_PATH: /PortafolioWeb
         run: npm run build

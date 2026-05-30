@@ -1,0 +1,26 @@
+---
+import { getGitHubTrophyUrl, siteConfig } from "../config/site";
+
+const trophyUrl = getGitHubTrophyUrl(siteConfig.githubUsername);
+---
+
+<section class="scroll-mt-24 fade-in-up" id="logros">
+  <h2 class="font-headline-md text-headline-md text-primary mb-sm flex items-center gap-md">
+    <span class="material-symbols-outlined">emoji_events</span>
+    <span data-i18n="sections.achievements">Logros de GitHub</span>
+    <div class="h-px bg-gradient-to-r from-outline-glass to-transparent flex-grow ml-md"></div>
+  </h2>
+  <p class="text-on-surface-variant text-sm mb-xl max-w-3xl" data-i18n="sections.achievementsSub">
+    Trofeos generados desde tu actividad pública en GitHub.
+  </p>
+
+  <div class="glass-panel p-md rounded-2xl neon-border hover-lift flex justify-center overflow-x-auto">
+    <img
+      alt="GitHub Profile Trophy"
+      class="w-full max-w-5xl h-auto rounded-lg"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      src={trophyUrl}
+    />
+  </div>
+</section>

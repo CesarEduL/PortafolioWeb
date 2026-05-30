@@ -1,0 +1,64 @@
+---
+import { getCollection, render } from "astro:content";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { siteConfig } from "../../config/site";
+import { routes } from "../../lib/navigation";
+import { blogSlug } from "../../lib/blog";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: blogSlug(post.id) },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<PageLayout title={`${post.data.title} — ${siteConfig.name}`}>
+  <div class="max-w-3xl mx-auto w-full">
+    <a class="text-primary text-sm hover:underline mb-lg inline-flex items-center gap-1" href={routes.blog}>
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      Blog
+    </a>
+    <article class="glass-panel p-xl rounded-2xl neon-border">
+      <time class="font-code-sm text-code-sm text-secondary" datetime={post.data.pubDate.toISOString()}>
+        {post.data.pubDate.toLocaleDateString("es-PE", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}
+      </time>
+      <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg text-text-primary mt-sm mb-md">
+        {post.data.title}
+      </h1>
+      <p class="text-on-surface-variant mb-xl text-lg">{post.data.description}</p>
+      <div class="prose-portfolio">
+        <Content />
+      </div>
+    </article>
+  </div>
+</PageLayout>
+
+<style>
+  .prose-portfolio :global(h2) {
+    @apply text-primary font-body-bold text-xl mt-xl mb-md;
+  }
+  .prose-portfolio :global(h3) {
+    @apply text-secondary font-body-bold text-lg mt-lg mb-sm;
+  }
+  .prose-portfolio :global(p) {
+    @apply text-on-surface-variant leading-relaxed mb-md;
+  }
+  .prose-portfolio :global(ul) {
+    @apply list-disc pl-lg text-on-surface-variant space-y-sm mb-md;
+  }
+  .prose-portfolio :global(a) {
+    @apply text-primary underline hover:text-primary-fixed-dim;
+  }
+  .prose-portfolio :global(code) {
+    @apply font-code-sm text-code-sm bg-surface-variant px-1 py-0.5 rounded;
+  }
+</style>

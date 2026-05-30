@@ -1,0 +1,87 @@
+---
+import { ui } from "../i18n/ui";
+---
+
+<script define:vars={{ ui }}>
+  const STORAGE_THEME = "portfolio-theme";
+  const STORAGE_LANG = "portfolio-lang";
+
+  function getStoredTheme() {
+    return localStorage.getItem(STORAGE_THEME);
+  }
+
+  function getStoredLang() {
+    const lang = localStorage.getItem(STORAGE_LANG);
+    return lang === "en" ? "en" : "es";
+  }
+
+  function setPrefActive(selector, value, attr) {
+    document.querySelectorAll(selector).forEach((btn) => {
+      const match = btn.getAttribute(attr) === value;
+      btn.classList.toggle("is-active", match);
+    });
+  }
+
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    const isLight = theme === "light";
+    root.classList.toggle("dark", !isLight);
+    root.classList.toggle("light", isLight);
+    root.style.colorScheme = isLight ? "light" : "dark";
+
+    setPrefActive("[data-theme]", theme, "data-theme");
+  }
+
+  function applyLanguage(lang) {
+    const dict = ui[lang] ?? ui.es;
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const key = el.getAttribute("data-i18n");
+      if (key && dict[key]) el.textContent = dict[key];
+    });
+
+    document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+      const key = el.getAttribute("data-i18n-aria");
+      if (key && dict[key]) el.setAttribute("aria-label", dict[key]);
+    });
+
+    document.querySelectorAll(".bilingual").forEach((el) => {
+      const es = el.getAttribute("data-i18n-es");
+      const en = el.getAttribute("data-i18n-en");
+      if (lang === "en" && en) el.textContent = en;
+      else if (es) el.textContent = es;
+    });
+
+    setPrefActive("[data-lang]", lang, "data-lang");
+  }
+
+  function bindPrefButtons(selector, attr, onSelect) {
+    document.querySelectorAll(selector).forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const value = btn.getAttribute(attr);
+        if (value) onSelect(value);
+      });
+    });
+  }
+
+  function initPreferences() {
+    const storedTheme = getStoredTheme();
+    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+    applyTheme(storedTheme ?? (prefersLight ? "light" : "dark"));
+    applyLanguage(getStoredLang());
+  }
+
+  bindPrefButtons("[data-theme]", "data-theme", (theme) => {
+    localStorage.setItem(STORAGE_THEME, theme);
+    applyTheme(theme);
+  });
+
+  bindPrefButtons("[data-lang]", "data-lang", (lang) => {
+    localStorage.setItem(STORAGE_LANG, lang);
+    applyLanguage(lang);
+  });
+
+  initPreferences();
+</script>

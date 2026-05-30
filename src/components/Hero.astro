@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from "../config/site";
+import { routes } from "../lib/navigation";
 ---
 
 <section
@@ -11,7 +12,7 @@ import { siteConfig } from "../config/site";
       siteConfig.available && (
         <div class="inline-flex items-center gap-2 px-md py-xs rounded-full glass-panel neon-border mb-md">
           <span class="w-2 h-2 rounded-full bg-success-neon animate-pulse" />
-          <span class="font-label-caps text-label-caps text-success-neon tracking-widest">
+          <span class="font-label-caps text-label-caps text-success-neon tracking-widest" data-i18n="hero.available">
             Disponible para trabajar
           </span>
         </div>
@@ -32,8 +33,8 @@ import { siteConfig } from "../config/site";
     </p>
 
     <div class="flex flex-wrap items-center justify-center md:justify-start gap-md pt-lg">
-      <a class="btn-primary flex items-center gap-2 group" href="#proyectos">
-        Ver Proyectos
+      <a class="btn-primary flex items-center gap-2 group" href={routes.projects}>
+        <span data-i18n="hero.projects">Ver Proyectos</span>
         <span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform"
           >arrow_forward</span
         >
@@ -46,7 +47,7 @@ import { siteConfig } from "../config/site";
         target="_blank"
       >
         <span class="material-symbols-outlined text-[20px]">download</span>
-        Descargar CV
+        <span data-i18n="hero.cv">Descargar CV</span>
       </a>
       <a
         class="p-sm glass-panel rounded-lg hover:bg-surface-variant transition-colors text-on-surface-variant hover:text-primary motion-safe:hover:scale-110 motion-safe:hover:-translate-y-1 ml-sm"

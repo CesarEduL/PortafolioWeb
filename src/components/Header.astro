@@ -1,83 +1,274 @@
 ---
 import { siteConfig } from "../config/site";
+import { routes, navPrimary, navSecondary, getActiveRoute } from "../lib/navigation";
+import { ui, type UiKey } from "../i18n/ui";
 
-const navItems = [
-  { href: "#inicio", label: "Inicio" },
-  { href: "#sobre-mi", label: "Sobre Mí" },
-  { href: "#tecnologias", label: "Tecnologías" },
-  { href: "#proyectos", label: "Proyectos" },
-  { href: "#estadisticas", label: "Estadísticas" },
-];
+const activeRoute = getActiveRoute(Astro.url.pathname, import.meta.env.BASE_URL);
 ---
 
 <nav
   class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-glass shadow-sm transition-all duration-300"
   id="mainNav"
 >
-  <div class="flex justify-between items-center h-16 px-gutter max-w-7xl mx-auto">
+  <div class="flex justify-between items-center h-14 md:h-16 px-gutter max-w-7xl mx-auto gap-md">
     <a
-      class="font-headline-md text-headline-md font-extrabold text-primary tracking-tighter hover:text-primary-fixed-dim transition-colors"
-      href="#inicio"
+      class="font-headline-md text-lg md:text-headline-md font-extrabold text-primary tracking-tighter hover:text-primary-fixed-dim transition-colors shrink-0"
+      href={routes.home}
     >
       {siteConfig.name}
     </a>
 
-    <div class="hidden md:flex items-center gap-lg">
+    <div class="hidden md:flex items-center gap-xs">
       {
-        navItems.map((item, index) => (
+        navPrimary.map((item) => (
           <a
             class:list={[
-              "nav-desktop-link relative font-body-bold text-body-bold hover:bg-primary/10 rounded-lg px-sm py-xs transition-all active:scale-95",
-              index === 0 ? "text-primary nav-active" : "text-on-surface-variant hover:text-primary",
+              "nav-desktop-link relative text-sm font-body-bold hover:bg-primary/10 rounded-lg px-sm py-xs transition-all active:scale-95 whitespace-nowrap",
+              item.routeId === activeRoute
+                ? "text-primary nav-active"
+                : "text-on-surface-variant hover:text-primary",
             ]}
             href={item.href}
+            data-i18n={item.key}
           >
-            {item.label}
+            {ui.es[item.key as UiKey]}
           </a>
         ))
       }
+
+      <div class="relative nav-dropdown" data-dropdown="more">
+        <button
+          aria-expanded="false"
+          aria-haspopup="true"
+          class:list={[
+            "nav-desktop-link nav-more-trigger flex items-center gap-0.5 text-sm font-body-bold hover:bg-primary/10 rounded-lg px-sm py-xs transition-all",
+            activeRoute === "stats" ? "text-primary nav-active" : "text-on-surface-variant hover:text-primary",
+          ]}
+          id="moreNavToggle"
+          type="button"
+        >
+          <span data-i18n="nav.more">Más</span>
+          <span class="material-symbols-outlined text-[18px]">expand_more</span>
+        </button>
+        <div
+          class="nav-dropdown-panel hidden absolute right-0 top-full mt-1 min-w-[11rem] py-xs rounded-xl glass-panel neon-border shadow-lg z-50"
+          id="moreNavMenu"
+          role="menu"
+        >
+          {
+            navSecondary.map((item) => (
+              <a
+                class:list={[
+                  "block px-md py-sm text-sm hover:bg-primary/10 transition-colors",
+                  item.routeId === activeRoute
+                    ? "text-primary"
+                    : "text-on-surface-variant hover:text-primary",
+                ]}
+                href={item.href}
+                role="menuitem"
+                data-i18n={item.key}
+              >
+                {ui.es[item.key as UiKey]}
+              </a>
+            ))
+          }
+        </div>
+      </div>
     </div>
 
-    <a class="hidden md:inline-flex btn-secondary text-sm" href="#contacto">Contactar</a>
+    <div class="flex items-center gap-sm shrink-0">
+      <div class="relative nav-dropdown" data-dropdown="prefs">
+        <button
+          aria-expanded="false"
+          aria-haspopup="true"
+          aria-label="Preferencias"
+          class="inline-flex items-center justify-center w-9 h-9 shrink-0 text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg border border-outline-glass transition-colors"
+          data-i18n-aria="prefs.settings"
+          id="prefsMenuToggle"
+          type="button"
+        >
+          <span class="material-symbols-outlined text-[20px] leading-none">settings</span>
+        </button>
+        <div
+          class="nav-dropdown-panel hidden absolute right-0 top-full mt-1 w-52 py-sm rounded-xl glass-panel neon-border shadow-lg z-50"
+          id="prefsMenu"
+          role="menu"
+        >
+          <p class="px-md py-xs text-xs font-label-caps text-label-caps text-on-surface-variant tracking-wider" data-i18n="prefs.language">
+            Idioma
+          </p>
+          <div class="flex gap-xs px-sm pb-sm">
+            <button
+              class="pref-option flex-1 text-xs font-code-sm py-xs rounded-lg border border-outline-glass transition-colors"
+              data-lang="es"
+              id="langOptionEs"
+              type="button"
+            >
+              ES
+            </button>
+            <button
+              class="pref-option flex-1 text-xs font-code-sm py-xs rounded-lg border border-outline-glass transition-colors"
+              data-lang="en"
+              id="langOptionEn"
+              type="button"
+            >
+              EN
+            </button>
+          </div>
+          <div class="h-px bg-outline-glass mx-sm my-xs"></div>
+          <p class="px-md py-xs text-xs font-label-caps text-label-caps text-on-surface-variant tracking-wider" data-i18n="prefs.appearance">
+            Apariencia
+          </p>
+          <div class="flex gap-xs px-sm pb-xs">
+            <button
+              class="pref-option flex-1 flex items-center justify-center gap-1 text-xs py-xs rounded-lg border border-outline-glass transition-colors"
+              data-theme="dark"
+              id="themeOptionDark"
+              type="button"
+            >
+              <span class="material-symbols-outlined text-[16px]">dark_mode</span>
+              <span data-i18n="theme.dark">Oscuro</span>
+            </button>
+            <button
+              class="pref-option flex-1 flex items-center justify-center gap-1 text-xs py-xs rounded-lg border border-outline-glass transition-colors"
+              data-theme="light"
+              id="themeOptionLight"
+              type="button"
+            >
+              <span class="material-symbols-outlined text-[16px]">light_mode</span>
+              <span data-i18n="theme.light">Claro</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-    <button
-      aria-label="Abrir menú"
-      class="md:hidden text-primary p-xs hover:bg-primary/10 rounded-lg"
-      id="mobileMenuToggle"
-      type="button"
-    >
-      <span class="material-symbols-outlined">menu</span>
-    </button>
+      <a
+        class="hidden sm:inline-flex btn-secondary text-xs md:text-sm px-md py-xs"
+        href={routes.contact}
+        data-i18n="nav.contact"
+      >
+        Contactar
+      </a>
+
+      <button
+        aria-label="Abrir menú"
+        class="md:hidden text-primary p-xs hover:bg-primary/10 rounded-lg"
+        id="mobileMenuToggle"
+        type="button"
+      >
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+    </div>
   </div>
 
   <div class="hidden md:hidden border-t border-outline-glass bg-surface/95" id="mobileMenu">
-    <div class="flex flex-col gap-sm px-gutter py-md">
+    <div class="flex flex-col gap-xs px-gutter py-md max-h-[75vh] overflow-y-auto">
       {
-        navItems.map((item) => (
+        navPrimary.map((item) => (
           <a
             class="text-on-surface-variant hover:text-primary font-body-bold text-body-bold hover:bg-primary/10 rounded-lg px-sm py-xs transition-all"
             href={item.href}
+            data-i18n={item.key}
           >
-            {item.label}
+            {ui.es[item.key as UiKey]}
           </a>
         ))
       }
-      <a class="btn-secondary text-sm text-center mt-sm" href="#contacto">Contactar</a>
+      <p class="text-xs font-label-caps text-label-caps text-on-surface-variant px-sm pt-sm tracking-wider" data-i18n="nav.more">
+        Más
+      </p>
+      {
+        navSecondary.map((item) => (
+          <a
+            class="text-on-surface-variant hover:text-primary text-sm hover:bg-primary/10 rounded-lg px-sm py-xs pl-md transition-all"
+            href={item.href}
+            data-i18n={item.key}
+          >
+            {ui.es[item.key as UiKey]}
+          </a>
+        ))
+      }
+      <div class="h-px bg-outline-glass my-sm"></div>
+      <p class="text-xs font-label-caps text-label-caps text-on-surface-variant px-sm tracking-wider" data-i18n="prefs.language">
+        Idioma
+      </p>
+      <div class="flex gap-xs px-sm">
+        <button class="pref-option flex-1 text-sm py-xs rounded-lg border border-outline-glass" data-lang="es" id="langOptionEsMobile" type="button">ES</button>
+        <button class="pref-option flex-1 text-sm py-xs rounded-lg border border-outline-glass" data-lang="en" id="langOptionEnMobile" type="button">EN</button>
+      </div>
+      <p class="text-xs font-label-caps text-label-caps text-on-surface-variant px-sm pt-sm tracking-wider" data-i18n="prefs.appearance">
+        Apariencia
+      </p>
+      <div class="flex gap-xs px-sm pb-sm">
+        <button class="pref-option flex-1 text-sm py-xs rounded-lg border border-outline-glass flex items-center justify-center gap-1" data-theme="dark" id="themeOptionDarkMobile" type="button">
+          <span class="material-symbols-outlined text-[16px]">dark_mode</span>
+        </button>
+        <button class="pref-option flex-1 text-sm py-xs rounded-lg border border-outline-glass flex items-center justify-center gap-1" data-theme="light" id="themeOptionLightMobile" type="button">
+          <span class="material-symbols-outlined text-[16px]">light_mode</span>
+        </button>
+      </div>
+      <a class="btn-secondary text-sm text-center mt-xs" href={routes.contact} data-i18n="nav.contact">Contactar</a>
     </div>
   </div>
 </nav>
 
 <script>
-  const toggle = document.getElementById("mobileMenuToggle");
-  const menu = document.getElementById("mobileMenu");
+  function closeAllDropdowns(except?: HTMLElement | null) {
+    document.querySelectorAll(".nav-dropdown-panel").forEach((panel) => {
+      if (panel !== except) {
+        panel.classList.add("hidden");
+        const trigger = panel.closest(".nav-dropdown")?.querySelector("button[aria-expanded]");
+        trigger?.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
 
-  toggle?.addEventListener("click", () => {
-    menu?.classList.toggle("hidden");
+  function toggleDropdown(triggerId: string, menuId: string) {
+    const trigger = document.getElementById(triggerId);
+    const menu = document.getElementById(menuId);
+    if (!trigger || !menu) return;
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = !menu.classList.contains("hidden");
+      closeAllDropdowns();
+      if (!isOpen) {
+        menu.classList.remove("hidden");
+        trigger.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
+
+  toggleDropdown("moreNavToggle", "moreNavMenu");
+  toggleDropdown("prefsMenuToggle", "prefsMenu");
+
+  document.addEventListener("click", () => closeAllDropdowns());
+
+  document.getElementById("moreNavMenu")?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => closeAllDropdowns());
   });
 
-  menu?.querySelectorAll("a").forEach((link) => {
+  const mobileToggle = document.getElementById("mobileMenuToggle");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  mobileToggle?.addEventListener("click", () => {
+    closeAllDropdowns();
+    mobileMenu?.classList.toggle("hidden");
+  });
+
+  mobileMenu?.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
-      menu?.classList.add("hidden");
+      mobileMenu?.classList.add("hidden");
     });
   });
 </script>
+
+<style>
+  .pref-option.is-active {
+    @apply border-primary bg-primary/15 text-primary;
+  }
+
+  html.light .pref-option.is-active {
+    @apply border-sky-600 bg-sky-50 text-sky-800;
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+import { getCollection } from "astro:content";
+import PageLayout from "../../layouts/PageLayout.astro";
+import { siteConfig } from "../../config/site";
+import { routes } from "../../lib/navigation";
+import { blogPostUrl } from "../../lib/blog";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<PageLayout title={`Blog — ${siteConfig.name}`}>
+  <div class="max-w-4xl mx-auto w-full">
+    <a class="text-primary text-sm hover:underline mb-lg inline-flex items-center gap-1" href={routes.home}>
+      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+      <span data-i18n="blog.back">Volver al inicio</span>
+    </a>
+    <h1 class="font-display-lg text-display-lg text-text-primary mb-xl" data-i18n="sections.blog">Blog y notas</h1>
+
+    <div class="space-y-lg">
+      {
+        posts.map((post) => (
+          <article class="glass-panel p-lg rounded-2xl neon-border hover-lift">
+            <time class="font-code-sm text-code-sm text-secondary" datetime={post.data.pubDate.toISOString()}>
+              {post.data.pubDate.toLocaleDateString("es-PE", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </time>
+            <h2 class="font-body-bold text-2xl text-primary mt-sm mb-sm">
+              <a class="hover:underline" href={blogPostUrl(post.id)}>
+                {post.data.title}
+              </a>
+            </h2>
+            <p class="text-on-surface-variant mb-md">{post.data.description}</p>
+            <a class="btn-secondary text-sm inline-flex items-center gap-1" href={blogPostUrl(post.id)}>
+              <span data-i18n="blog.readMore">Leer más</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</PageLayout>

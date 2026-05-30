@@ -91,3 +91,54 @@
     @apply motion-safe:transition-all motion-safe:duration-300 motion-safe:hover:-translate-y-2 motion-safe:hover:shadow-[0_10px_30px_rgba(125,207,255,0.1)];
   }
 }
+
+/* Modo claro (toggle en header) */
+html.light body {
+  @apply bg-slate-50 text-slate-800;
+}
+
+html.light .glass-panel {
+  @apply bg-white/75 border-slate-200 backdrop-blur-md;
+}
+
+html.light .neon-border {
+  @apply border-slate-200 hover:border-sky-600;
+}
+
+html.light .text-primary,
+html.light .font-headline-md.text-primary,
+html.light h1 .text-transparent {
+  @apply text-sky-800;
+}
+
+html.light .text-on-surface-variant,
+html.light p,
+html.light .text-text-secondary {
+  @apply text-slate-600;
+}
+
+html.light .text-secondary {
+  @apply text-violet-700;
+}
+
+html.light .bg-surface,
+html.light #mainNav {
+  @apply bg-white/90;
+}
+
+html.light .bg-surface-variant,
+html.light .bg-surface-container-low {
+  @apply bg-slate-100;
+}
+
+html.light .btn-primary {
+  @apply from-sky-600 to-violet-600 text-white border-slate-200;
+}
+
+html.light .btn-secondary {
+  @apply text-sky-700 border-sky-600 hover:bg-sky-50;
+}
+
+html.light .fixed.inset-0.z-\[-1\] > div {
+  @apply opacity-40;
+}

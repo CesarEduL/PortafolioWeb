@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import { assetUrl } from "../lib/assets";
+import { blogPostUrl } from "../lib/blog";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const blogIndexUrl = assetUrl("blog/");
+---
+
+<section class="scroll-mt-24 fade-in-up" id="blog">
+  <h2 class="font-headline-md text-headline-md text-primary mb-sm flex items-center gap-md">
+    <span class="material-symbols-outlined">article</span>
+    <span data-i18n="sections.blog">Blog y notas</span>
+    <div class="h-px bg-gradient-to-r from-outline-glass to-transparent flex-grow ml-md"></div>
+  </h2>
+  <p class="text-on-surface-variant text-sm mb-xl max-w-3xl" data-i18n="sections.blogSub">
+    Artículos cortos sobre desarrollo y aprendizaje.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+    {
+      posts.map((post) => (
+        <article class="glass-panel p-lg rounded-2xl neon-border hover-lift flex flex-col h-full">
+          <time class="font-code-sm text-code-sm text-secondary mb-sm" datetime={post.data.pubDate.toISOString()}>
+            {post.data.pubDate.toLocaleDateString("es-PE", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </time>
+          <h3 class="font-body-bold text-lg text-primary mb-sm">{post.data.title}</h3>
+          <p class="text-sm text-on-surface-variant flex-grow mb-md">{post.data.description}</p>
+          {post.data.tags.length > 0 && (
+            <div class="flex flex-wrap gap-xs mb-md">
+              {post.data.tags.map((tag) => (
+                <span class="px-2 py-0.5 text-xs rounded-md bg-surface-variant text-on-surface-variant border border-outline-glass font-code-sm">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <a class="btn-secondary text-xs text-center py-2 mt-auto" href={blogPostUrl(post.id)}>
+            <span data-i18n="blog.readMore">Leer más</span>
+          </a>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="mt-lg text-center">
+    <a class="btn-primary inline-flex items-center gap-2" href={blogIndexUrl}>
+      <span data-i18n="blog.viewAll">Ver todas las notas</span>
+      <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+    </a>
+  </div>
+</section>

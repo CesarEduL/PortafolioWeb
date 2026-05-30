@@ -47,6 +47,9 @@ npm run preview
 | `PUBLIC_WEB3FORMS_ACCESS_KEY` | Para contacto | Cliente | Access key de Web3Forms |
 | `PUBLIC_CONTACT_EMAIL` | Opcional | Cliente | Correo donde recibes mensajes |
 | `PUBLIC_CV_FILENAME` | Opcional | Build + cliente | Nombre del PDF en `public/` (por defecto `cv.pdf`) |
+| `PUBLIC_PLAUSIBLE_DOMAIN` | Opcional | Cliente | Dominio en Plausible Analytics |
+| `PUBLIC_UMAMI_WEBSITE_ID` | Opcional | Cliente | ID del sitio en Umami |
+| `PUBLIC_UMAMI_SCRIPT_URL` | Opcional | Cliente | URL del script Umami (por defecto cloud.umami.is) |
 | `BASE_PATH` | Solo GH Pages | Build | Ruta base (`/PortafolioWeb` o `/`) |
 
 > Las variables con prefijo `PUBLIC_` son visibles en el navegador. **Nunca** pongas el token de GitHub con prefijo `PUBLIC_`.
@@ -269,18 +272,35 @@ Solo necesitas `PUBLIC_GITHUB_USERNAME` configurado correctamente.
 
 ---
 
-## 9. Estructura del proyecto
+## 9. Estructura del sitio (páginas)
+
+| Ruta | Contenido |
+|------|-----------|
+| `/` | Hero, Sobre Mí, Tecnologías, Contacto |
+| `/proyectos/` | Proyectos destacados + más repos |
+| `/experiencia/` | Timeline académico y laboral |
+| `/blog/` | Artículos (Content Collections) |
+| `/estadisticas/` | Stats de GitHub + trofeos |
+
+Rutas definidas en `src/lib/navigation.ts` (respetan `BASE_PATH`).
+
+---
+
+## 10. Estructura del proyecto
 
 ```
 PortafolioWeb/
 ├── src/
 │   ├── components/     # Secciones del portafolio
-│   ├── config/site.ts  # Datos del sitio y URLs de stats
-│   ├── lib/github.ts   # Fetch de repos en build time
+│   ├── config/         # site.ts, env.ts
+│   ├── content/blog/   # Artículos (Content Collections)
+│   ├── data/           # Proyectos destacados y experiencia
+│   ├── i18n/ui.ts      # Textos ES/EN
+│   ├── lib/            # GitHub API, blog, assets
 │   ├── layouts/        # Layout base
-│   ├── pages/          # Rutas (index.astro)
-│   └── styles/         # Tailwind + utilidades
-├── public/             # Assets estáticos (aquí va cv.pdf)
+│   ├── pages/          # index + blog
+│   └── styles/         # Tailwind + modo claro
+├── public/             # cv.pdf, projects/*.png
 ├── .github/workflows/  # CI/CD para GitHub Pages
 ├── astro.config.mjs
 ├── tailwind.config.mjs
@@ -290,20 +310,61 @@ PortafolioWeb/
 
 ---
 
-## 10. Personalización rápida
+## 11. Personalización rápida
 
 | Qué cambiar | Archivo |
 |-------------|---------|
 | Nombre, links, imágenes | `src/config/site.ts` |
-| Variables de entorno (GitHub, CV, formulario) | `src/config/env.ts` y `.env` |
+| Variables de entorno (GitHub, CV, formulario, analytics) | `src/config/env.ts` y `.env` |
 | PDF del CV | `public/cv.pdf` (ver sección 7) |
+| **Proyectos destacados** (texto, stack, demo, captura) | `src/data/featured-projects.ts` + imágenes en `public/projects/` |
+| **Experiencia / educación** (timeline) | `src/data/experience.ts` |
+| **Blog / notas** | `src/content/blog/*.md` |
+| Textos ES/EN del menú y secciones | `src/i18n/ui.ts` |
 | Texto "Sobre Mí" | `src/components/About.astro` |
-| Colores / tema | `tailwind.config.mjs` |
-| Repos mostrados | Automático vía API; edita filtros en `src/lib/github.ts` |
+| Colores / tema | `tailwind.config.mjs` + modo claro en `src/styles/global.css` |
+| Repos adicionales (grid inferior) | Automático vía API; filtros en `src/lib/github.ts` |
+
+### Proyectos destacados
+
+1. Edita `src/data/featured-projects.ts` (título, descripción `es`/`en`, `stack`, `demoUrl`, `githubRepo`).
+2. Añade capturas en `public/projects/` (PNG/WebP; actualiza el campo `image`).
+3. Los repos listados ahí **no** se repiten en «Más repositorios».
+
+### Blog (Content Collections)
+
+1. Crea `src/content/blog/mi-articulo.md` con frontmatter:
+
+   ```yaml
+   ---
+   title: "Título"
+   description: "Resumen"
+   pubDate: 2026-05-30
+   tags: ["astro"]
+   locale: es
+   draft: false
+   ---
+   ```
+
+2. El listado aparece en la home y en `/blog/`.
+
+### Analytics (opcional)
+
+| Servicio | Variable en `.env` |
+|----------|-------------------|
+| [Plausible](https://plausible.io/) | `PUBLIC_PLAUSIBLE_DOMAIN=tudominio.com` |
+| [Umami](https://umami.is/) | `PUBLIC_UMAMI_WEBSITE_ID=...` y opcional `PUBLIC_UMAMI_SCRIPT_URL` |
+
+En GitHub Actions, añade las mismas variables en **Settings → Variables** si despliegas ahí.
+
+### Idioma y tema
+
+- **ES/EN:** botón en el header; preferencia en `localStorage` (`portfolio-lang`).
+- **Claro/oscuro:** botón sol/luna; preferencia en `localStorage` (`portfolio-theme`).
 
 ---
 
-## 11. Solución de problemas
+## 12. Solución de problemas
 
 ### Error `UNABLE_TO_VERIFY_LEAF_SIGNATURE` al hacer `npm i`
 
