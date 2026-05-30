@@ -6,8 +6,8 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
 
 <section class="scroll-mt-24 fade-in-up pb-12 w-full" id="contacto">
   <div class="mb-xl md:mb-[64px]">
-    <h1 class="font-display-lg text-display-lg text-primary mb-sm">Contacto</h1>
-    <p class="font-body-base text-body-base text-text-secondary max-w-2xl">
+    <h1 class="font-display-lg text-display-lg text-primary mb-sm" data-i18n="sections.contact">Contacto</h1>
+    <p class="font-body-base text-body-base text-text-secondary max-w-2xl" data-i18n="sections.contactSub">
       ¿Interesado en colaborar en un proyecto o discutir oportunidades tecnológicas? Completa el formulario y abriré un
       canal de comunicación.
     </p>
@@ -24,13 +24,13 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
         <div class="absolute inset-0 bg-gradient-to-t from-surface-dark/90 to-transparent flex items-end p-md">
           <div class="font-code-sm text-code-sm text-primary flex items-center gap-sm">
             <span class="w-2 h-2 rounded-full bg-success-neon animate-pulse"></span>
-            Sistema en línea
+            <span data-i18n="contact.online">Sistema en línea</span>
           </div>
         </div>
       </div>
 
       <div class="flex flex-col gap-md mt-sm">
-        <h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">
+        <h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest" data-i18n="contact.networks">
           Redes Profesionales
         </h3>
         <a
@@ -89,9 +89,8 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
 
         {
           !hasForm && (
-            <div class="relative z-10 mb-lg rounded-lg border border-warning-neon/40 bg-warning-neon/10 p-md text-sm text-on-surface">
-              Configura <code class="text-primary">PUBLIC_WEB3FORMS_ACCESS_KEY</code> en tu archivo <code>.env</code> para
-              activar el formulario de contacto.
+            <div class="relative z-10 mb-lg rounded-lg border border-warning-neon/40 bg-warning-neon/10 p-md text-sm text-on-surface" data-i18n="contact.formMissing">
+              Configura PUBLIC_WEB3FORMS_ACCESS_KEY en tu archivo .env para activar el formulario de contacto.
             </div>
           )
         }
@@ -112,10 +111,12 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
           <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
             <div class="flex flex-col gap-sm">
               <label class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2" for="name">
-                <span class="material-symbols-outlined text-[16px]">person</span> Nombre
+                <span class="material-symbols-outlined text-[16px]">person</span>
+                <span data-i18n="contact.name">Nombre</span>
               </label>
               <input
                 class="bg-surface-container-high border border-outline-variant rounded-md px-4 py-3 text-on-surface font-body-base text-body-base placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all bg-transparent"
+                data-i18n-placeholder="contact.placeholder.name"
                 id="name"
                 name="name"
                 placeholder="Tu nombre completo"
@@ -125,10 +126,12 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
             </div>
             <div class="flex flex-col gap-sm">
               <label class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2" for="email">
-                <span class="material-symbols-outlined text-[16px]">mail</span> Correo Electrónico
+                <span class="material-symbols-outlined text-[16px]">mail</span>
+                <span data-i18n="contact.email">Correo Electrónico</span>
               </label>
               <input
                 class="bg-surface-container-high border border-outline-variant rounded-md px-4 py-3 text-on-surface font-body-base text-body-base placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all bg-transparent"
+                data-i18n-placeholder="contact.placeholder.email"
                 id="email"
                 name="email"
                 placeholder="correo@ejemplo.com"
@@ -140,10 +143,12 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
 
           <div class="flex flex-col gap-sm">
             <label class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2" for="subject-field">
-              <span class="material-symbols-outlined text-[16px]">subject</span> Asunto
+              <span class="material-symbols-outlined text-[16px]">subject</span>
+              <span data-i18n="contact.subject">Asunto</span>
             </label>
             <input
               class="bg-surface-container-high border border-outline-variant rounded-md px-4 py-3 text-on-surface font-body-base text-body-base placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all bg-transparent"
+              data-i18n-placeholder="contact.placeholder.subject"
               id="subject-field"
               name="custom_subject"
               placeholder="¿De qué trata tu mensaje?"
@@ -154,10 +159,12 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
 
           <div class="flex flex-col gap-sm">
             <label class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2" for="message">
-              <span class="material-symbols-outlined text-[16px]">chat_bubble</span> Mensaje
+              <span class="material-symbols-outlined text-[16px]">chat_bubble</span>
+              <span data-i18n="contact.message">Mensaje</span>
             </label>
             <textarea
               class="bg-surface-container-high border border-outline-variant rounded-md px-4 py-3 text-on-surface font-body-base text-body-base placeholder:text-outline focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y min-h-[120px] bg-transparent"
+              data-i18n-placeholder="contact.placeholder.message"
               id="message"
               name="message"
               placeholder="Describe los detalles aquí..."
@@ -172,7 +179,7 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
               disabled={!hasForm}
               type="submit"
             >
-              Enviar Transmisión
+              <span data-i18n="contact.submit">Enviar Transmisión</span>
               <span class="material-symbols-outlined text-[20px]">send</span>
             </button>
           </div>
@@ -183,37 +190,60 @@ const hasForm = Boolean(siteConfig.web3formsAccessKey);
 </section>
 
 <script>
-  const form = document.getElementById("contactForm") as HTMLFormElement | null;
-  const status = document.getElementById("formStatus");
+  import { ui } from "../i18n/ui";
 
-  form?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!form || !status) return;
+  function getLang() {
+    return localStorage.getItem("portfolio-lang") === "en" ? "en" : "es";
+  }
 
-    const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-    submitButton?.setAttribute("disabled", "true");
-    status.classList.remove("hidden", "text-error", "text-success-neon");
-    status.textContent = "Enviando...";
+  function getFormMessages() {
+    const lang = getLang();
+    return {
+      sending: ui[lang]["contact.sending"],
+      success: ui[lang]["contact.success"],
+      error: ui[lang]["contact.error"],
+    };
+  }
 
-    try {
-      const response = await fetch(form.action, {
-        method: "POST",
-        body: new FormData(form),
-      });
-      const data = await response.json();
+  function bindContactForm() {
+    const form = document.getElementById("contactForm") as HTMLFormElement | null;
+    const status = document.getElementById("formStatus");
+    if (!form || form.dataset.bound === "true") return;
+    form.dataset.bound = "true";
 
-      if (data.success) {
-        status.textContent = "¡Mensaje enviado correctamente!";
-        status.classList.add("text-success-neon");
-        form.reset();
-      } else {
-        throw new Error(data.message ?? "Error al enviar");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!status) return;
+
+      const msgs = getFormMessages();
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      submitButton?.setAttribute("disabled", "true");
+      status.classList.remove("hidden", "text-error", "text-success-neon");
+      status.textContent = msgs.sending;
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          status.textContent = msgs.success;
+          status.classList.add("text-success-neon");
+          form.reset();
+        } else {
+          throw new Error(data.message ?? "Error");
+        }
+      } catch {
+        status.textContent = msgs.error;
+        status.classList.add("text-error");
+      } finally {
+        submitButton?.removeAttribute("disabled");
       }
-    } catch {
-      status.textContent = "No se pudo enviar el mensaje. Intenta de nuevo.";
-      status.classList.add("text-error");
-    } finally {
-      submitButton?.removeAttribute("disabled");
-    }
-  });
+    });
+  }
+
+  bindContactForm();
+  document.addEventListener("astro:page-load", bindContactForm);
 </script>

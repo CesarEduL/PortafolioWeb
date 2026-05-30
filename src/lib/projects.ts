@@ -5,6 +5,7 @@ import { assetUrl } from "./assets";
 export interface EnrichedFeaturedProject extends FeaturedProject {
   html_url: string;
   liveUrl?: string;
+  siteUrl?: string;
   imageUrl: string;
 }
 
@@ -22,6 +23,7 @@ export function enrichFeaturedProjects(
       ...project,
       html_url,
       liveUrl: liveUrl || undefined,
+      siteUrl: project.isCurrentSite ? assetUrl("") : undefined,
       imageUrl: assetUrl(project.image),
     };
   });

@@ -5,6 +5,8 @@ export interface FeaturedProject {
   description: { es: string; en: string };
   stack: string[];
   demoUrl?: string;
+  /** Enlace al sitio actual (ej. este portafolio). Muestra «Este Proyecto» en vez de demo. */
+  isCurrentSite?: boolean;
   /** Ruta bajo public/, ej. projects/alertadolar.png */
   image: string;
 }
@@ -57,6 +59,7 @@ export const featuredProjects: FeaturedProject[] = [
       en: "This site: static Astro, GitHub integration, i18n, blog, and GitHub Pages deployment.",
     },
     stack: ["Astro", "Tailwind", "TypeScript", "GitHub Actions"],
+    isCurrentSite: true,
     image: "projects/portafolio.svg",
   },
 ];

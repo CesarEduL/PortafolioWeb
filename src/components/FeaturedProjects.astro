@@ -58,7 +58,15 @@ const { projects } = Astro.props;
                 <span data-i18n="projects.github">GitHub</span>
               </a>
               {
-                project.liveUrl ? (
+                project.siteUrl ? (
+                  <a
+                    class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
+                    href={project.siteUrl}
+                  >
+                    <span class="material-symbols-outlined text-[16px]">home</span>
+                    <span data-i18n="projects.thisProject">Este Proyecto</span>
+                  </a>
+                ) : project.liveUrl ? (
                   <a
                     class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
                     href={project.liveUrl}

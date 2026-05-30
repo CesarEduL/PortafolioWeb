@@ -46,6 +46,13 @@ import { ui } from "../i18n/ui";
       if (key && dict[key]) el.setAttribute("aria-label", dict[key]);
     });
 
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      if (key && dict[key] && "placeholder" in el) {
+        el.placeholder = dict[key];
+      }
+    });
+
     document.querySelectorAll(".bilingual").forEach((el) => {
       const es = el.getAttribute("data-i18n-es");
       const en = el.getAttribute("data-i18n-en");
@@ -58,6 +65,8 @@ import { ui } from "../i18n/ui";
 
   function bindPrefButtons(selector, attr, onSelect) {
     document.querySelectorAll(selector).forEach((btn) => {
+      if (btn.dataset.prefBound === "true") return;
+      btn.dataset.prefBound = "true";
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const value = btn.getAttribute(attr);
@@ -71,17 +80,16 @@ import { ui } from "../i18n/ui";
     const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
     applyTheme(storedTheme ?? (prefersLight ? "light" : "dark"));
     applyLanguage(getStoredLang());
+    bindPrefButtons("[data-theme]", "data-theme", (theme) => {
+      localStorage.setItem(STORAGE_THEME, theme);
+      applyTheme(theme);
+    });
+    bindPrefButtons("[data-lang]", "data-lang", (lang) => {
+      localStorage.setItem(STORAGE_LANG, lang);
+      applyLanguage(lang);
+    });
   }
 
-  bindPrefButtons("[data-theme]", "data-theme", (theme) => {
-    localStorage.setItem(STORAGE_THEME, theme);
-    applyTheme(theme);
-  });
-
-  bindPrefButtons("[data-lang]", "data-lang", (lang) => {
-    localStorage.setItem(STORAGE_LANG, lang);
-    applyLanguage(lang);
-  });
-
   initPreferences();
+  document.addEventListener("astro:page-load", initPreferences);
 </script>
