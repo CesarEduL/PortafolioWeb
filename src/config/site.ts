@@ -15,15 +15,41 @@ export const siteConfig = {
   contactEmail: import.meta.env.PUBLIC_CONTACT_EMAIL ?? "",
 };
 
-export function getGitHubStatsUrl(username: string) {
+const GITHUB_STATS_HOSTS = [
+  "https://github-readme-stats.anuraghazra1.vercel.app",
+  "https://github-readme-stats.vercel.app",
+] as const;
+
+function buildGitHubStatsUrl(host: string, username: string) {
   const params = new URLSearchParams({
     username,
     show_icons: "true",
     theme: "tokyonight",
     hide_border: "true",
-    count_private: "true",
+    include_all_commits: "true",
   });
-  return `https://github-readme-stats.vercel.app/api?${params.toString()}`;
+  return `${host}/api?${params.toString()}`;
+}
+
+/** Tarjeta principal (repos, estrellas, commits). Sin count_private: requiere PAT y suele romper la imagen. */
+export function getGitHubStatsUrl(username: string) {
+  return buildGitHubStatsUrl(GITHUB_STATS_HOSTS[0], username);
+}
+
+export function getGitHubStatsFallbackUrl(username: string) {
+  return buildGitHubStatsUrl(GITHUB_STATS_HOSTS[1], username);
+}
+
+/** Lenguajes más usados (como en tu README de GitHub). */
+export function getGitHubTopLangsUrl(username: string) {
+  const params = new URLSearchParams({
+    username,
+    theme: "tokyonight",
+    hide_border: "true",
+    layout: "compact",
+    langs_count: "8",
+  });
+  return `${GITHUB_STATS_HOSTS[0]}/api/top-langs/?${params.toString()}`;
 }
 
 export function getGitHubStreakUrl(username: string) {
