@@ -38,7 +38,13 @@ import { siteConfig } from "../config/site";
           >arrow_forward</span
         >
       </a>
-      <a class="btn-secondary flex items-center gap-2 px-lg" href={siteConfig.cvUrl}>
+      <a
+        class="btn-secondary flex items-center gap-2 px-lg"
+        download={siteConfig.cvUrl.endsWith(".pdf") ? "CV-Cesar-Eduardo.pdf" : undefined}
+        href={siteConfig.cvUrl}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
         <span class="material-symbols-outlined text-[20px]">download</span>
         Descargar CV
       </a>

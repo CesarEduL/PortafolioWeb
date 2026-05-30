@@ -46,6 +46,7 @@ npm run preview
 | `GH_API_TOKEN` | Recomendada | Solo build | Token para cargar repos sin límite estricto |
 | `PUBLIC_WEB3FORMS_ACCESS_KEY` | Para contacto | Cliente | Access key de Web3Forms |
 | `PUBLIC_CONTACT_EMAIL` | Opcional | Cliente | Correo donde recibes mensajes |
+| `PUBLIC_CV_FILENAME` | Opcional | Build + cliente | Nombre del PDF en `public/` (por defecto `cv.pdf`) |
 | `BASE_PATH` | Solo GH Pages | Build | Ruta base (`/PortafolioWeb` o `/`) |
 
 > Las variables con prefijo `PUBLIC_` son visibles en el navegador. **Nunca** pongas el token de GitHub con prefijo `PUBLIC_`.
@@ -196,7 +197,68 @@ Tu sitio quedará en: `https://cesaredul.github.io/PortafolioWeb`
 
 ---
 
-## 7. Estadísticas de GitHub
+## 7. CV en PDF (botón «Descargar CV»)
+
+El botón del inicio apunta a un archivo estático en la carpeta `public/`. No hace falta tocar código cada vez que actualices tu currículum.
+
+### Primera vez (subir tu CV)
+
+1. Exporta tu CV desde Word, Google Docs, Canva, etc. como **PDF**.
+2. Copia el archivo a esta ruta del proyecto:
+
+   ```
+   public/cv.pdf
+   ```
+
+3. Arranca o reconstruye el sitio:
+
+   ```bash
+   npm run dev
+   # o, para producción:
+   npm run build
+   ```
+
+4. Comprueba el enlace:
+   - En local: `http://localhost:4320/PortafolioWeb/cv.pdf` (la ruta incluye `BASE_PATH` si lo tienes en `.env`).
+   - En GitHub Pages: `https://TU-USUARIO.github.io/PortafolioWeb/cv.pdf`
+
+5. Sube los cambios a GitHub (el PDF va en el commit):
+
+   ```bash
+   git add public/cv.pdf
+   git commit -m "docs: actualizar CV"
+   git push
+   ```
+
+   Si usas GitHub Actions, el workflow volverá a desplegar el sitio con el PDF nuevo.
+
+### Cuando actualices tu CV (mismo nombre)
+
+1. Sustituye el archivo **`public/cv.pdf`** por la versión nueva (mismo nombre, contenido nuevo).
+2. `git add public/cv.pdf`, commit y push (o solo vuelve a ejecutar `npm run build` si pruebas en local).
+
+No necesitas cambiar `src/config/site.ts`: la URL se genera sola con `BASE_URL` + nombre del archivo.
+
+### Opcional: otro nombre de archivo
+
+Si quieres conservar versiones con fecha en el nombre del PDF:
+
+1. Guarda el archivo, por ejemplo: `public/cv-2026-05.pdf`
+2. En `.env` (y en **Variables** de GitHub Actions si despliegas ahí):
+
+   ```env
+   PUBLIC_CV_FILENAME=cv-2026-05.pdf
+   ```
+
+3. Vuelve a hacer build o deploy.
+
+La lógica está en `src/config/env.ts` (`cvUrl`). El botón sigue en `src/components/Hero.astro`.
+
+> **Tip:** Mantén siempre el mismo nombre `cv.pdf` y solo reemplaza el archivo; es la forma más simple de actualizar sin tocar variables de entorno.
+
+---
+
+## 8. Estadísticas de GitHub
 
 La sección **Estadísticas** usa servicios públicos gratuitos (no requieren token):
 
@@ -207,7 +269,7 @@ Solo necesitas `PUBLIC_GITHUB_USERNAME` configurado correctamente.
 
 ---
 
-## 8. Estructura del proyecto
+## 9. Estructura del proyecto
 
 ```
 PortafolioWeb/
@@ -218,7 +280,7 @@ PortafolioWeb/
 │   ├── layouts/        # Layout base
 │   ├── pages/          # Rutas (index.astro)
 │   └── styles/         # Tailwind + utilidades
-├── public/             # Assets estáticos
+├── public/             # Assets estáticos (aquí va cv.pdf)
 ├── .github/workflows/  # CI/CD para GitHub Pages
 ├── astro.config.mjs
 ├── tailwind.config.mjs
@@ -228,18 +290,20 @@ PortafolioWeb/
 
 ---
 
-## 9. Personalización rápida
+## 10. Personalización rápida
 
 | Qué cambiar | Archivo |
 |-------------|---------|
 | Nombre, links, imágenes | `src/config/site.ts` |
+| Variables de entorno (GitHub, CV, formulario) | `src/config/env.ts` y `.env` |
+| PDF del CV | `public/cv.pdf` (ver sección 7) |
 | Texto "Sobre Mí" | `src/components/About.astro` |
 | Colores / tema | `tailwind.config.mjs` |
 | Repos mostrados | Automático vía API; edita filtros en `src/lib/github.ts` |
 
 ---
 
-## 10. Solución de problemas
+## 11. Solución de problemas
 
 ### Error `UNABLE_TO_VERIFY_LEAF_SIGNATURE` al hacer `npm i`
 
@@ -277,6 +341,7 @@ Si ves `Avast Web/Mail Shield`, la causa es Avast.
 | Error *Secret names must not start with GITHUB_* | El secret debe llamarse **`GH_API_TOKEN`** |
 | Formulario no envía | Configura `PUBLIC_WEB3FORMS_ACCESS_KEY` y confirma el email en Web3Forms |
 | Stats no cargan | GitHub username incorrecto o servicio externo temporalmente caído |
+| «Descargar CV» no abre nada | Falta `public/cv.pdf` o `PUBLIC_CV_FILENAME` no coincide con el archivo |
 
 ---
 
