@@ -9,6 +9,11 @@ export const siteConfig = {
   /** Logo horizontal del header (reemplaza el texto del nombre) */
   logoUrl:
     "https://res.cloudinary.com/drcphk36t/image/upload/q_auto/f_auto/v1780220257/logo_completo_de_lado_sin_fondo_onijuz.png",
+  /** Vista previa al compartir (WhatsApp, LinkedIn, X, etc.) */
+  ogImageUrl:
+    "https://res.cloudinary.com/drcphk36t/image/upload/q_auto/f_auto/v1780218404/imagen_2026-05-31_040642543_pxovz9.png",
+  description:
+    "Portafolio de Cesar Eduardo — Android Developer y Software Developer. Proyectos, experiencia, blog y contacto.",
   role: "Android Developer | Software Developer",
   available: true,
   githubUsername: publicEnv.githubUsername,
@@ -22,6 +27,15 @@ export const siteConfig = {
   web3formsAccessKey: publicEnv.web3formsAccessKey,
   contactEmail: publicEnv.contactEmail,
 };
+
+/** URL pública del sitio (con BASE_PATH si aplica), sin barra final. */
+export function getSiteOrigin(): string {
+  const fromEnv = import.meta.env.PUBLIC_SITE_URL;
+  if (fromEnv) return fromEnv.replace(/\/$/, "");
+  const site = import.meta.env.SITE ?? "https://CesarEduL.github.io";
+  const base = import.meta.env.BASE_URL ?? "/";
+  return new URL(base, site).href.replace(/\/$/, "");
+}
 
 const GITHUB_STATS_HOSTS = [
   "https://github-readme-stats.anuraghazra1.vercel.app",

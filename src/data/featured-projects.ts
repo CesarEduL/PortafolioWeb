@@ -42,8 +42,21 @@ export const featuredProjects: FeaturedProject[] = [
       en: "Vue 3 + Vite practice app: news feed, Vue Router, Vuex, Axios, and Vitest unit tests. Workshop edition of the news-web project.",
     },
     stack: ["Vue", "Vite", "Vuex", "Vitest"],
+    demoUrl: "https://stupendous-tiramisu-ee35f3.netlify.app",
     image: "projects/news-web-taller.svg",
     imageAccent: "#1b5e20",
+  },
+  {
+    id: "chatbot-prueba",
+    githubRepo: "ChatbotPrueba",
+    title: "Chatbot Prueba",
+    description: {
+      es: "Pruebas iniciales para entender mejor los chatbots. Proyecto usado en una primera entrevista técnica.",
+      en: "Initial experiments to learn chatbot fundamentals. Project used in a first technical interview.",
+    },
+    stack: ["Python", "Chatbot"],
+    image: "projects/chatbot-prueba.svg",
+    imageAccent: "#3776ab",
   },
   {
     id: "portafolio",
