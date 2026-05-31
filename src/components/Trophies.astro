@@ -1,7 +1,13 @@
 ---
-import { getGitHubTrophyUrl, siteConfig } from "../config/site";
+import { siteConfig } from "../config/site";
 
-const trophyUrl = getGitHubTrophyUrl(siteConfig.githubUsername);
+interface Props {
+  trophySrc: string;
+  trophyFallbacks?: string[];
+}
+
+const { trophySrc, trophyFallbacks = [] } = Astro.props;
+const fallbacksJson = JSON.stringify(trophyFallbacks);
 ---
 
 <section class="scroll-mt-24 fade-in-up" id="logros">
@@ -16,11 +22,51 @@ const trophyUrl = getGitHubTrophyUrl(siteConfig.githubUsername);
 
   <div class="glass-panel p-md rounded-2xl neon-border hover-lift flex justify-center overflow-x-auto">
     <img
+      id="github-trophy-img"
       alt="GitHub Profile Trophy"
-      class="w-full max-w-5xl h-auto rounded-lg"
+      class="w-full max-w-5xl h-auto rounded-lg min-h-[8rem]"
+      data-fallbacks={fallbacksJson}
+      decoding="async"
       loading="lazy"
       referrerpolicy="no-referrer"
-      src={trophyUrl}
+      src={trophySrc}
     />
   </div>
+  <p class="text-on-surface-variant text-xs mt-sm text-center">
+    <a
+      class="hover:text-primary transition-colors"
+      href={`https://github.com/${siteConfig.githubUsername}`}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      Ver perfil en GitHub
+    </a>
+  </p>
 </section>
+
+<script>
+  function bindTrophyFallback() {
+    const img = document.getElementById("github-trophy-img");
+    if (!(img instanceof HTMLImageElement)) return;
+    if (img.dataset.fallbackBound === "true") return;
+    img.dataset.fallbackBound = "true";
+
+    let fallbacks: string[] = [];
+    try {
+      fallbacks = JSON.parse(img.dataset.fallbacks ?? "[]");
+    } catch {
+      fallbacks = [];
+    }
+
+    let fallbackIndex = 0;
+    img.addEventListener("error", () => {
+      if (fallbackIndex >= fallbacks.length) return;
+      const next = fallbacks[fallbackIndex];
+      fallbackIndex += 1;
+      if (next && img.src !== next) img.src = next;
+    });
+  }
+
+  bindTrophyFallback();
+  document.addEventListener("astro:page-load", bindTrophyFallback);
+</script>

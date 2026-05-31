@@ -13,7 +13,7 @@ const { title = "Cesar Eduardo - Portfolio" } = Astro.props;
 ---
 
 <!doctype html>
-<html class="dark scroll-smooth" lang="es">
+<html class="scroll-smooth" lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,14 +24,33 @@ const { title = "Cesar Eduardo - Portfolio" } = Astro.props;
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
     <script is:inline>
       (function () {
-        const theme = localStorage.getItem("portfolio-theme");
-        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-        const useLight = theme === "light" || (!theme && prefersLight);
-        document.documentElement.classList.toggle("light", useLight);
-        document.documentElement.classList.toggle("dark", !useLight);
-        document.documentElement.style.colorScheme = useLight ? "light" : "dark";
-        const lang = localStorage.getItem("portfolio-lang");
-        if (lang === "en" || lang === "es") document.documentElement.lang = lang;
+        function resolveTheme() {
+          const stored = localStorage.getItem("portfolio-theme");
+          if (stored === "light" || stored === "dark") return stored;
+          return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+
+        function applyThemeToDocument(doc) {
+          const root = doc.documentElement;
+          const theme = resolveTheme();
+          const isLight = theme === "light";
+          root.classList.toggle("light", isLight);
+          root.classList.toggle("dark", !isLight);
+          root.style.colorScheme = isLight ? "light" : "dark";
+        }
+
+        function applyLangToDocument(doc) {
+          const lang = localStorage.getItem("portfolio-lang");
+          if (lang === "en" || lang === "es") doc.documentElement.lang = lang;
+        }
+
+        applyThemeToDocument(document);
+        applyLangToDocument(document);
+
+        document.addEventListener("astro:before-swap", (event) => {
+          applyThemeToDocument(event.newDocument);
+          applyLangToDocument(event.newDocument);
+        });
       })();
     </script>
     <link
@@ -90,6 +109,41 @@ const { title = "Cesar Eduardo - Portfolio" } = Astro.props;
         });
       }
 
+      function scrollToTargetFromUrl() {
+        let hash = window.location.hash;
+        if (!hash) {
+          const pending = sessionStorage.getItem("portfolio-scroll-hash");
+          if (pending) {
+            hash = pending;
+            sessionStorage.removeItem("portfolio-scroll-hash");
+            history.replaceState(
+              null,
+              "",
+              `${window.location.pathname}${window.location.search}${pending}`,
+            );
+          }
+        }
+
+        if (!hash) {
+          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+          return;
+        }
+
+        const id = decodeURIComponent(hash.replace(/^#/, ""));
+        const scrollToSection = () => {
+          const el = document.getElementById(id);
+          if (!el) return false;
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+          return true;
+        };
+
+        requestAnimationFrame(() => {
+          if (!scrollToSection()) {
+            window.setTimeout(scrollToSection, 80);
+          }
+        });
+      }
+
       function initScrollNav() {
         const sections = document.querySelectorAll("section[id]");
         const navLinks = document.querySelectorAll(".nav-desktop-link");
@@ -127,9 +181,10 @@ const { title = "Cesar Eduardo - Portfolio" } = Astro.props;
       document.addEventListener("astro:page-load", () => {
         initFadeInUp();
         initScrollNav();
-        window.scrollTo(0, 0);
+        scrollToTargetFromUrl();
       });
 
+      window.addEventListener("hashchange", scrollToTargetFromUrl);
       window.addEventListener("scroll", initScrollNav);
     </script>
   </body>

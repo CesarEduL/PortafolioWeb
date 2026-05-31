@@ -60,17 +60,7 @@ export function getGitHubTopLangsUrl(username: string) {
   return `${GITHUB_STATS_HOSTS[0]}/api/top-langs/?${params.toString()}`;
 }
 
-export function getGitHubTrophyUrl(username: string) {
-  const params = new URLSearchParams({
-    username,
-    theme: "discord",
-    "no-frame": "true",
-    column: "4",
-    "margin-w": "8",
-    "margin-h": "8",
-  });
-  return `https://github-profile-trophy.vercel.app/?${params.toString()}`;
-}
+export { getGitHubTrophyFallbackUrls, getGitHubTrophyUrl } from "../lib/github-trophy";
 
 export function getGitHubStreakUrl(username: string) {
   const params = new URLSearchParams({

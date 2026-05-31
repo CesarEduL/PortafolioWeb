@@ -63,33 +63,61 @@ import { ui } from "../i18n/ui";
     setPrefActive("[data-lang]", lang, "data-lang");
   }
 
-  function bindPrefButtons(selector, attr, onSelect) {
+  function closePrefsMenu() {
+    document.getElementById("prefsMenu")?.classList.add("hidden");
+    document.getElementById("prefsMenuToggle")?.setAttribute("aria-expanded", "false");
+  }
+
+  let prefsAbort = null;
+
+  function bindPrefButtons(selector, attr, onSelect, signal) {
     document.querySelectorAll(selector).forEach((btn) => {
-      if (btn.dataset.prefBound === "true") return;
-      btn.dataset.prefBound = "true";
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const value = btn.getAttribute(attr);
-        if (value) onSelect(value);
-      });
+      btn.addEventListener(
+        "click",
+        (e) => {
+          e.stopPropagation();
+          const value = btn.getAttribute(attr);
+          if (value) onSelect(value);
+        },
+        { signal },
+      );
     });
   }
 
   function initPreferences() {
+    prefsAbort?.abort();
+    prefsAbort = new AbortController();
+    const { signal } = prefsAbort;
+
     const storedTheme = getStoredTheme();
     const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
     applyTheme(storedTheme ?? (prefersLight ? "light" : "dark"));
     applyLanguage(getStoredLang());
-    bindPrefButtons("[data-theme]", "data-theme", (theme) => {
-      localStorage.setItem(STORAGE_THEME, theme);
-      applyTheme(theme);
-    });
-    bindPrefButtons("[data-lang]", "data-lang", (lang) => {
-      localStorage.setItem(STORAGE_LANG, lang);
-      applyLanguage(lang);
-    });
+
+    bindPrefButtons(
+      "[data-theme]",
+      "data-theme",
+      (theme) => {
+        localStorage.setItem(STORAGE_THEME, theme);
+        applyTheme(theme);
+        closePrefsMenu();
+      },
+      signal,
+    );
+
+    bindPrefButtons(
+      "[data-lang]",
+      "data-lang",
+      (lang) => {
+        localStorage.setItem(STORAGE_LANG, lang);
+        applyLanguage(lang);
+        closePrefsMenu();
+      },
+      signal,
+    );
   }
 
   initPreferences();
   document.addEventListener("astro:page-load", initPreferences);
+  document.addEventListener("astro:before-swap", closePrefsMenu);
 </script>

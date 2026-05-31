@@ -3,9 +3,14 @@ import PageLayout from "../../layouts/PageLayout.astro";
 import Stats from "../../components/Stats.astro";
 import Trophies from "../../components/Trophies.astro";
 import { siteConfig } from "../../config/site";
+import { resolveGitHubTrophySrc } from "../../lib/github-trophy";
+
+const { src: trophySrc, fallbacks: trophyFallbacks } = await resolveGitHubTrophySrc(
+  siteConfig.githubUsername,
+);
 ---
 
 <PageLayout title={`Estadísticas — ${siteConfig.name}`}>
   <Stats />
-  <Trophies />
+  <Trophies trophyFallbacks={trophyFallbacks} trophySrc={trophySrc} />
 </PageLayout>

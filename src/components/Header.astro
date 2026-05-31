@@ -222,54 +222,108 @@ const activeRoute = getActiveRoute(Astro.url.pathname, import.meta.env.BASE_URL)
 </nav>
 
 <script>
-  function closeAllDropdowns(except?: HTMLElement | null) {
+  function closeAllDropdowns() {
     document.querySelectorAll(".nav-dropdown-panel").forEach((panel) => {
-      if (panel !== except) {
-        panel.classList.add("hidden");
-        const trigger = panel.closest(".nav-dropdown")?.querySelector("button[aria-expanded]");
-        trigger?.setAttribute("aria-expanded", "false");
-      }
+      panel.classList.add("hidden");
+      const trigger = panel.closest(".nav-dropdown")?.querySelector("button[aria-expanded]");
+      trigger?.setAttribute("aria-expanded", "false");
     });
+    document.getElementById("mobileMenu")?.classList.add("hidden");
   }
 
-  function toggleDropdown(triggerId: string, menuId: string) {
+  let navUiAbort: AbortController | null = null;
+
+  function bindDropdown(triggerId: string, menuId: string, signal: AbortSignal) {
     const trigger = document.getElementById(triggerId);
     const menu = document.getElementById(menuId);
     if (!trigger || !menu) return;
 
-    trigger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isOpen = !menu.classList.contains("hidden");
-      closeAllDropdowns();
-      if (!isOpen) {
-        menu.classList.remove("hidden");
-        trigger.setAttribute("aria-expanded", "true");
-      }
+    trigger.addEventListener(
+      "click",
+      (e) => {
+        e.stopPropagation();
+        const isOpen = !menu.classList.contains("hidden");
+        closeAllDropdowns();
+        if (!isOpen) {
+          menu.classList.remove("hidden");
+          trigger.setAttribute("aria-expanded", "true");
+        }
+      },
+      { signal },
+    );
+  }
+
+  function initNavUi() {
+    navUiAbort?.abort();
+    navUiAbort = new AbortController();
+    const { signal } = navUiAbort;
+
+    closeAllDropdowns();
+
+    bindDropdown("moreNavToggle", "moreNavMenu", signal);
+    bindDropdown("prefsMenuToggle", "prefsMenu", signal);
+
+    document.addEventListener(
+      "click",
+      (e) => {
+        const target = e.target;
+        if (target instanceof Element && target.closest(".nav-dropdown")) return;
+        closeAllDropdowns();
+      },
+      { signal },
+    );
+
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Escape") closeAllDropdowns();
+      },
+      { signal },
+    );
+
+    document.querySelectorAll('a[href*="#"]').forEach((link) => {
+      if (!(link instanceof HTMLAnchorElement)) return;
+      link.addEventListener(
+        "click",
+        () => {
+          const url = new URL(link.href, window.location.href);
+          if (url.hash) sessionStorage.setItem("portfolio-scroll-hash", url.hash);
+        },
+        { signal },
+      );
+    });
+
+    document.getElementById("moreNavMenu")?.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => closeAllDropdowns(), { signal });
+    });
+
+    const mobileToggle = document.getElementById("mobileMenuToggle");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    mobileToggle?.addEventListener(
+      "click",
+      (e) => {
+        e.stopPropagation();
+        closeAllDropdowns();
+        mobileMenu?.classList.toggle("hidden");
+      },
+      { signal },
+    );
+
+    mobileMenu?.querySelectorAll("a").forEach((link) => {
+      link.addEventListener(
+        "click",
+        () => {
+          mobileMenu?.classList.add("hidden");
+        },
+        { signal },
+      );
     });
   }
 
-  toggleDropdown("moreNavToggle", "moreNavMenu");
-  toggleDropdown("prefsMenuToggle", "prefsMenu");
-
-  document.addEventListener("click", () => closeAllDropdowns());
-
-  document.getElementById("moreNavMenu")?.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => closeAllDropdowns());
-  });
-
-  const mobileToggle = document.getElementById("mobileMenuToggle");
-  const mobileMenu = document.getElementById("mobileMenu");
-
-  mobileToggle?.addEventListener("click", () => {
-    closeAllDropdowns();
-    mobileMenu?.classList.toggle("hidden");
-  });
-
-  mobileMenu?.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      mobileMenu?.classList.add("hidden");
-    });
-  });
+  initNavUi();
+  document.addEventListener("astro:page-load", initNavUi);
+  document.addEventListener("astro:before-swap", closeAllDropdowns);
 </script>
 
 <style>
