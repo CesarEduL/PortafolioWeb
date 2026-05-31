@@ -15,7 +15,7 @@ El sitio **no tiene panel de administración**: todo el contenido se edita en ar
 | Notas del blog | `src/content/blog/*.md` | `/blog/` |
 | Menú y textos ES/EN | `src/i18n/ui.ts` | Header, botones, secciones |
 | CV descargable | `public/cv.pdf` | Botón en inicio |
-| Repos extra (automático) | `.env` → `PUBLIC_GITHUB_USERNAME` | `/proyectos/` (grid inferior) |
+| Repos extra (automático) | `.env` → `PUBLIC_GITHUB_USERNAME` | `/proyectos/` (paginados, 12 por página; sin README de perfil ni destacados) |
 
 ---
 
@@ -101,6 +101,10 @@ Añade entradas **al array** `experienceItems` (orden = orden en la página). El
 
 Proyectos con imagen, stack y botones GitHub / Demo. El nombre del repo debe coincidir con GitHub (`githubRepo`).
 
+**Guía detallada de capturas, descripciones y rutas:** [capturas-proyectos.md](capturas-proyectos.md).
+
+**Dinámico en build:** solo se muestran si el repo **sigue existiendo** en tu GitHub (consulta la API al generar el sitio). Si borras un repo, desaparece solo; no hace falta quitar la entrada del archivo (opcional, para mantenerlo limpio). `isCurrentSite: true` siempre se muestra. `enabled: false` fuerza ocultarlo.
+
 **Proyecto normal (sin demo en vivo):**
 
 ```ts
@@ -145,7 +149,7 @@ Proyectos con imagen, stack y botones GitHub / Demo. El nombre del repo debe coi
 },
 ```
 
-Capturas: guarda PNG/WebP/SVG en **`public/projects/`** y usa el mismo nombre en `image` (ej. `projects/alertadolar.png`).
+Capturas: guarda PNG/WebP/SVG en **`public/projects/`** y usa el mismo nombre en `image` (ej. `projects/alertadolar.png`). Si la imagen no carga, se muestra un degradado con título y stack (ver [capturas-proyectos.md](capturas-proyectos.md)).
 
 ---
 

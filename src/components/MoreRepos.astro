@@ -6,6 +6,24 @@ interface Props {
 }
 
 const { repos } = Astro.props;
+
+const PAGE_SIZE = 12;
+
+type RepoCard = {
+  name: string;
+  description: string | null;
+  language: string | null;
+  html_url: string;
+  homepage: string | null;
+};
+
+const repoCards: RepoCard[] = repos.map((repo) => ({
+  name: repo.name,
+  description: repo.description,
+  language: repo.language,
+  html_url: repo.html_url,
+  homepage: repo.homepage,
+}));
 ---
 
 {
@@ -17,50 +35,176 @@ const { repos } = Astro.props;
         <div class="h-px bg-gradient-to-r from-outline-glass to-transparent flex-grow ml-md" />
       </h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-        {repos.map((repo) => (
-          <div class="glass-panel p-lg rounded-2xl neon-border hover-lift flex flex-col h-full">
-            <div class="flex justify-between items-start mb-md gap-sm">
-              <h3 class="font-body-bold text-lg text-primary truncate">{repo.name}</h3>
-              {repo.language && (
-                <span class="px-2 py-1 bg-surface-variant text-on-surface-variant text-xs rounded-md font-code-sm border border-outline-glass shrink-0">
-                  {repo.language}
-                </span>
-              )}
-            </div>
-            <p class="font-body-base text-sm text-on-surface-variant flex-grow mb-lg">
-              {repo.description ?? "—"}
-            </p>
-            <div class="flex items-center gap-sm mt-auto pt-md border-t border-outline-glass">
-              <a
-                class="btn-secondary text-xs flex items-center gap-1 flex-1 justify-center py-2"
-                href={repo.html_url}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <span class="material-symbols-outlined text-[16px]">code</span>
-                <span data-i18n="projects.github">GitHub</span>
-              </a>
-              {repo.homepage ? (
-                <a
-                  class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
-                  href={repo.homepage}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  <span class="material-symbols-outlined text-[16px]">open_in_new</span>
-                  <span data-i18n="projects.demo">Demo</span>
-                </a>
-              ) : (
-                <span class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2 opacity-40 cursor-not-allowed">
-                  <span class="material-symbols-outlined text-[16px]">open_in_new</span>
-                  <span data-i18n="projects.noDemo">Sin demo</span>
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg"
+        id="moreReposGrid"
+        aria-live="polite"
+      />
+
+      {
+        repoCards.length > PAGE_SIZE && (
+          <nav
+            class="flex flex-col sm:flex-row items-center justify-center gap-md mt-xl pt-lg border-t border-outline-glass"
+            id="moreReposPagination"
+            aria-label="Paginación de repositorios"
+          >
+            <button
+              class="btn-secondary text-sm flex items-center gap-1 px-md py-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              id="moreReposPrev"
+              type="button"
+              data-i18n="projects.pagePrev"
+            >
+              <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+              Anterior
+            </button>
+            <span
+              class="text-sm text-on-surface-variant font-code-sm tabular-nums"
+              id="moreReposPageInfo"
+            />
+            <button
+              class="btn-secondary text-sm flex items-center gap-1 px-md py-2 disabled:opacity-40 disabled:cursor-not-allowed"
+              id="moreReposNext"
+              type="button"
+              data-i18n="projects.pageNext"
+            >
+              Siguiente
+              <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </nav>
+        )
+      }
     </section>
   )
 }
+
+<script define:vars={{ repoCards, pageSize: PAGE_SIZE }}>
+  function getLang() {
+    return localStorage.getItem("portfolio-lang") === "en" ? "en" : "es";
+  }
+
+  function pageLabel(current, total) {
+    return getLang() === "en"
+      ? `Page ${current} of ${total}`
+      : `Página ${current} de ${total}`;
+  }
+
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function cardHtml(repo) {
+    const desc = repo.description ? escapeHtml(repo.description) : "—";
+    const lang = repo.language
+      ? `<span class="px-2 py-1 bg-surface-variant text-on-surface-variant text-xs rounded-md font-code-sm border border-outline-glass shrink-0">${escapeHtml(repo.language)}</span>`
+      : "";
+    const demo = repo.homepage
+      ? `<a class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2" href="${escapeHtml(repo.homepage)}" rel="noopener noreferrer" target="_blank"><span class="material-symbols-outlined text-[16px]">open_in_new</span><span data-i18n="projects.demo">Demo</span></a>`
+      : `<span class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2 opacity-40 cursor-not-allowed"><span class="material-symbols-outlined text-[16px]">open_in_new</span><span data-i18n="projects.noDemo">Sin demo</span></span>`;
+
+    return `<div class="glass-panel p-lg rounded-2xl neon-border hover-lift flex flex-col h-full">
+      <div class="flex justify-between items-start mb-md gap-sm">
+        <h3 class="font-body-bold text-lg text-primary truncate">${escapeHtml(repo.name)}</h3>
+        ${lang}
+      </div>
+      <p class="font-body-base text-sm text-on-surface-variant flex-grow mb-lg">${desc}</p>
+      <div class="flex items-center gap-sm mt-auto pt-md border-t border-outline-glass">
+        <a class="btn-secondary text-xs flex items-center gap-1 flex-1 justify-center py-2" href="${escapeHtml(repo.html_url)}" rel="noopener noreferrer" target="_blank">
+          <span class="material-symbols-outlined text-[16px]">code</span>
+          <span data-i18n="projects.github">GitHub</span>
+        </a>
+        ${demo}
+      </div>
+    </div>`;
+  }
+
+  let moreReposAbort = null;
+
+  function initMoreReposPagination() {
+    const grid = document.getElementById("moreReposGrid");
+    if (!grid || !repoCards?.length) return;
+
+    moreReposAbort?.abort();
+    moreReposAbort = new AbortController();
+    const { signal } = moreReposAbort;
+
+    const prevBtn = document.getElementById("moreReposPrev");
+    const nextBtn = document.getElementById("moreReposNext");
+    const pageInfo = document.getElementById("moreReposPageInfo");
+    const totalPages = Math.max(1, Math.ceil(repoCards.length / pageSize));
+
+    let currentPage = 0;
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const p = Number.parseInt(params.get("repos") ?? "1", 10);
+      if (p >= 1 && p <= totalPages) currentPage = p - 1;
+    } catch {
+      /* ignore */
+    }
+
+    function render() {
+      const start = currentPage * pageSize;
+      const slice = repoCards.slice(start, start + pageSize);
+      grid.innerHTML = slice.map(cardHtml).join("");
+
+      if (pageInfo) {
+        pageInfo.textContent =
+          totalPages > 1 ? pageLabel(currentPage + 1, totalPages) : "";
+      }
+
+      if (prevBtn) prevBtn.disabled = currentPage <= 0;
+      if (nextBtn) nextBtn.disabled = currentPage >= totalPages - 1;
+
+      const url = new URL(window.location.href);
+      if (totalPages > 1 && currentPage > 0) {
+        url.searchParams.set("repos", String(currentPage + 1));
+      } else {
+        url.searchParams.delete("repos");
+      }
+      history.replaceState(null, "", url);
+    }
+
+    prevBtn?.addEventListener(
+      "click",
+      () => {
+        if (currentPage > 0) {
+          currentPage -= 1;
+          render();
+          grid.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      },
+      { signal },
+    );
+
+    nextBtn?.addEventListener(
+      "click",
+      () => {
+        if (currentPage < totalPages - 1) {
+          currentPage += 1;
+          render();
+          grid.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      },
+      { signal },
+    );
+
+    document.querySelectorAll("[data-lang]").forEach((btn) => {
+      btn.addEventListener(
+        "click",
+        () => {
+          window.setTimeout(render, 0);
+        },
+        { signal },
+      );
+    });
+
+    render();
+  }
+
+  initMoreReposPagination();
+  document.addEventListener("astro:page-load", initMoreReposPagination);
+</script>

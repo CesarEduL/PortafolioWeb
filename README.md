@@ -12,6 +12,7 @@ Portafolio estático construido con **Astro + Tailwind CSS**. Se puede desplegar
 | Subir y actualizar el CV (PDF) | [docs/cv-pdf.md](docs/cv-pdf.md) |
 | Rutas del sitio y árbol del repo | [docs/estructura.md](docs/estructura.md) |
 | Editar experiencia, proyectos, blog, textos | [docs/contenido.md](docs/contenido.md) |
+| Capturas y textos de proyectos destacados | [docs/capturas-proyectos.md](docs/capturas-proyectos.md) |
 | Referencia rápida de personalización | [docs/personalizacion.md](docs/personalizacion.md) |
 | Errores frecuentes (npm, deploy, formulario) | [docs/solucion-problemas.md](docs/solucion-problemas.md) |
 

@@ -27,7 +27,7 @@ Solo necesitas `PUBLIC_GITHUB_USERNAME` configurado correctamente (ver [Variable
 
 ```
 PortafolioWeb/
-├── docs/               # Documentación del proyecto
+├── docs/               # Documentación (incl. capturas-proyectos.md)
 ├── src/
 │   ├── components/     # Secciones del portafolio
 │   ├── config/         # site.ts, env.ts

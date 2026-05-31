@@ -1,5 +1,6 @@
 ---
 import type { EnrichedFeaturedProject } from "../lib/projects";
+import { getFeaturedImageAccent, getFeaturedImageStackLabel } from "../lib/featured-image";
 
 interface Props {
   projects: EnrichedFeaturedProject[];
@@ -20,73 +21,116 @@ const { projects } = Astro.props;
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-xl">
     {
-      projects.map((project) => (
-        <article class="glass-panel rounded-2xl neon-border hover-lift overflow-hidden flex flex-col h-full">
-          <div class="relative aspect-video bg-surface-container-low overflow-hidden">
-            <img
-              alt={`Captura de ${project.title}`}
-              class="w-full h-full object-cover"
-              loading="lazy"
-              src={project.imageUrl}
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-surface/90 via-transparent to-transparent" />
-          </div>
-          <div class="p-lg flex flex-col flex-grow gap-md">
-            <h3 class="font-body-bold text-xl text-primary">{project.title}</h3>
-            <p
-              class="font-body-base text-sm text-on-surface-variant flex-grow bilingual"
-              data-i18n-en={project.description.en}
-              data-i18n-es={project.description.es}
-            >
-              {project.description.es}
-            </p>
-            <div class="flex flex-wrap gap-xs">
-              {project.stack.map((tech) => (
-                <span class="px-2 py-1 text-xs rounded-md font-code-sm bg-surface-variant text-on-surface-variant border border-outline-glass">
-                  {tech}
-                </span>
-              ))}
-            </div>
-            <div class="flex items-center gap-sm pt-md border-t border-outline-glass mt-auto">
-              <a
-                class="btn-secondary text-xs flex items-center gap-1 flex-1 justify-center py-2"
-                href={project.html_url}
-                rel="noopener noreferrer"
-                target="_blank"
+      projects.map((project) => {
+        const accent = getFeaturedImageAccent(project);
+        const stackLabel = getFeaturedImageStackLabel(project.stack);
+
+        return (
+          <article class="glass-panel rounded-2xl neon-border hover-lift overflow-hidden flex flex-col h-full">
+            <div class="relative aspect-video bg-surface-container-low overflow-hidden">
+              <img
+                alt={`Captura de ${project.title}`}
+                class="featured-project-cover w-full h-full object-cover"
+                decoding="async"
+                loading="lazy"
+                src={project.imageUrl}
+              />
+              <div
+                class="featured-project-fallback absolute inset-0 hidden flex-col items-center justify-center px-lg text-center"
+                style={`background: linear-gradient(135deg, #1a1b26 0%, ${accent} 100%)`}
+                aria-hidden="true"
               >
-                <span class="material-symbols-outlined text-[16px]">code</span>
-                <span data-i18n="projects.github">GitHub</span>
-              </a>
-              {
-                project.siteUrl ? (
-                  <a
-                    class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
-                    href={project.siteUrl}
-                  >
-                    <span class="material-symbols-outlined text-[16px]">home</span>
-                    <span data-i18n="projects.thisProject">Este Proyecto</span>
-                  </a>
-                ) : project.liveUrl ? (
-                  <a
-                    class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
-                    href={project.liveUrl}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <span class="material-symbols-outlined text-[16px]">open_in_new</span>
-                    <span data-i18n="projects.demo">Demo</span>
-                  </a>
-                ) : (
-                  <span class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2 opacity-40 cursor-not-allowed">
-                    <span class="material-symbols-outlined text-[16px]">open_in_new</span>
-                    <span data-i18n="projects.noDemo">Sin demo</span>
-                  </span>
-                )
-              }
+                <p class="font-body-bold text-2xl md:text-3xl text-primary">{project.title}</p>
+                <p class="font-code-sm text-sm text-on-surface-variant mt-sm">{stackLabel}</p>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-surface/90 via-transparent to-transparent pointer-events-none" />
             </div>
-          </div>
-        </article>
-      ))
+            <div class="p-lg flex flex-col flex-grow gap-md">
+              <h3 class="font-body-bold text-xl text-primary">{project.title}</h3>
+              <p
+                class="font-body-base text-sm text-on-surface-variant flex-grow bilingual"
+                data-i18n-en={project.description.en}
+                data-i18n-es={project.description.es}
+              >
+                {project.description.es}
+              </p>
+              <div class="flex flex-wrap gap-xs">
+                {project.stack.map((tech) => (
+                  <span class="px-2 py-1 text-xs rounded-md font-code-sm bg-surface-variant text-on-surface-variant border border-outline-glass">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+              <div class="flex items-center gap-sm pt-md border-t border-outline-glass mt-auto">
+                <a
+                  class="btn-secondary text-xs flex items-center gap-1 flex-1 justify-center py-2"
+                  href={project.html_url}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <span class="material-symbols-outlined text-[16px]">code</span>
+                  <span data-i18n="projects.github">GitHub</span>
+                </a>
+                {
+                  project.siteUrl ? (
+                    <a
+                      class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
+                      href={project.siteUrl}
+                    >
+                      <span class="material-symbols-outlined text-[16px]">home</span>
+                      <span data-i18n="projects.thisProject">Este Proyecto</span>
+                    </a>
+                  ) : project.liveUrl ? (
+                    <a
+                      class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2"
+                      href={project.liveUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                      <span data-i18n="projects.demo">Demo</span>
+                    </a>
+                  ) : (
+                    <span class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2 opacity-40 cursor-not-allowed">
+                      <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                      <span data-i18n="projects.noDemo">Sin demo</span>
+                    </span>
+                  )
+                }
+              </div>
+            </div>
+          </article>
+        );
+      })
     }
   </div>
 </section>
+
+<script>
+  function showFeaturedImageFallback(img) {
+    img.classList.add("hidden");
+    const fallback = img.nextElementSibling;
+    if (fallback?.classList.contains("featured-project-fallback")) {
+      fallback.classList.remove("hidden");
+      fallback.classList.add("flex");
+      fallback.setAttribute("aria-hidden", "false");
+    }
+  }
+
+  function initFeaturedImageFallback() {
+    document.querySelectorAll(".featured-project-cover").forEach((img) => {
+      if (!(img instanceof HTMLImageElement)) return;
+      if (img.dataset.fallbackBound === "true") return;
+      img.dataset.fallbackBound = "true";
+
+      img.addEventListener("error", () => showFeaturedImageFallback(img));
+
+      if (img.complete && img.naturalWidth === 0) {
+        showFeaturedImageFallback(img);
+      }
+    });
+  }
+
+  initFeaturedImageFallback();
+  document.addEventListener("astro:page-load", initFeaturedImageFallback);
+</script>

@@ -1,5 +1,6 @@
 export interface FeaturedProject {
   id: string;
+  /** Nombre del repo en GitHub. Si ya no existe, no se muestra (salvo `isCurrentSite`). */
   githubRepo: string;
   title: string;
   description: { es: string; en: string };
@@ -7,13 +8,18 @@ export interface FeaturedProject {
   demoUrl?: string;
   /** Enlace al sitio actual (ej. este portafolio). Muestra «Este Proyecto» en vez de demo. */
   isCurrentSite?: boolean;
+  /** `false` oculta aunque el repo exista. Por defecto: visible solo si el repo existe. */
+  enabled?: boolean;
   /** Ruta bajo public/, ej. projects/alertadolar.png */
   image: string;
+  /** Color hex del degradado si la captura no carga (opcional; si no, se infiere del stack). */
+  imageAccent?: string;
 }
 
 /**
- * Proyectos destacados (3–4). Edita textos, stack, demo e imágenes aquí.
- * Capturas: coloca PNG/WebP en public/projects/ con el mismo nombre base.
+ * Catálogo de proyectos destacados. En build se filtran contra la API de GitHub:
+ * solo aparecen si `githubRepo` existe en tu cuenta (o `isCurrentSite: true`).
+ * Añade una entrada nueva aquí cuando publiques un repo; no hace falta borrar las viejas.
  */
 export const featuredProjects: FeaturedProject[] = [
   {
@@ -28,27 +34,16 @@ export const featuredProjects: FeaturedProject[] = [
     image: "projects/alertadolar.svg",
   },
   {
-    id: "refugio",
-    githubRepo: "RefugioApp",
-    title: "Refugio App",
+    id: "news-web-taller",
+    githubRepo: "news-web-taller",
+    title: "News Web Taller",
     description: {
-      es: "Aplicación orientada a gestión y visibilidad de refugios. Enfoque en usabilidad y persistencia de datos.",
-      en: "App focused on shelter management and visibility. Emphasis on usability and data persistence.",
+      es: "Práctica de Vue 3 con Vite: noticias, Vue Router, Vuex, Axios y pruebas con Vitest. Versión de taller del proyecto news-web.",
+      en: "Vue 3 + Vite practice app: news feed, Vue Router, Vuex, Axios, and Vitest unit tests. Workshop edition of the news-web project.",
     },
-    stack: ["Java", "Android", "SQLite", "Material Design"],
-    image: "projects/refugio.svg",
-  },
-  {
-    id: "storybook-nuxt",
-    githubRepo: "Storybook-Nuxt",
-    title: "Storybook + Nuxt",
-    description: {
-      es: "Catálogo de componentes UI documentados con Storybook en un proyecto Nuxt. Ideal para diseño consistente en equipos.",
-      en: "UI component catalog documented with Storybook in a Nuxt project. Built for consistent team design systems.",
-    },
-    stack: ["Vue", "Nuxt", "Storybook", "TypeScript"],
-    demoUrl: undefined,
-    image: "projects/storybook-nuxt.svg",
+    stack: ["Vue", "Vite", "Vuex", "Vitest"],
+    image: "projects/news-web-taller.svg",
+    imageAccent: "#1b5e20",
   },
   {
     id: "portafolio",

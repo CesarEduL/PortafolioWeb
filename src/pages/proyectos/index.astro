@@ -9,7 +9,7 @@ import { enrichFeaturedProjects, excludeFeaturedRepos } from "../../lib/projects
 
 const repos = await fetchGitHubRepos(siteConfig.githubUsername);
 const featured = enrichFeaturedProjects(featuredProjects, repos, siteConfig.githubUsername);
-const moreRepos = excludeFeaturedRepos(repos, featuredProjects);
+const moreRepos = excludeFeaturedRepos(repos, featured);
 ---
 
 <PageLayout title={`Proyectos — ${siteConfig.name}`}>

@@ -9,12 +9,21 @@ export interface EnrichedFeaturedProject extends FeaturedProject {
   imageUrl: string;
 }
 
+/** Solo se muestran entradas cuyo repo existe en GitHub (o `isCurrentSite`). */
+function isFeaturedVisible(project: FeaturedProject, repoNames: Set<string>): boolean {
+  if (project.enabled === false) return false;
+  if (project.isCurrentSite) return true;
+  return repoNames.has(project.githubRepo.toLowerCase());
+}
+
 export function enrichFeaturedProjects(
   projects: FeaturedProject[],
   repos: GitHubRepo[],
   githubUsername: string,
 ): EnrichedFeaturedProject[] {
-  return projects.map((project) => {
+  const repoNames = new Set(repos.map((r) => r.name.toLowerCase()));
+
+  return projects.filter((p) => isFeaturedVisible(p, repoNames)).map((project) => {
     const repo = repos.find((r) => r.name.toLowerCase() === project.githubRepo.toLowerCase());
     const html_url = repo?.html_url ?? `https://github.com/${githubUsername}/${project.githubRepo}`;
     const liveUrl = project.demoUrl ?? repo?.homepage ?? undefined;
