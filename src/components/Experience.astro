@@ -36,37 +36,59 @@ const typeLabelKey: Record<ExperienceType, string> = {
                 {typeIcon[item.type]}
               </span>
             </div>
-            <div class="flex flex-wrap items-center gap-sm mb-sm">
-              <span class="font-label-caps text-label-caps text-secondary tracking-widest" data-i18n={typeLabelKey[item.type]}>
-                {item.type === "work" ? "Experiencia" : item.type === "education" ? "Educación" : "Certificado"}
-              </span>
-              <span class="text-xs text-on-surface-variant font-code-sm">{item.period}</span>
-            </div>
-            <h3
-              class="font-body-bold text-lg text-primary bilingual"
-              data-i18n-es={item.title.es}
-              data-i18n-en={item.title.en}
-            >
-              {item.title.es}
-            </h3>
-            <p
-              class="text-sm text-secondary font-body-bold mb-sm bilingual"
-              data-i18n-es={item.organization.es}
-              data-i18n-en={item.organization.en}
-            >
-              {item.organization.es}
-            </p>
-            {
-              item.description && (
-                <p
-                  class="text-sm text-on-surface-variant bilingual"
-                  data-i18n-es={item.description.es}
-                  data-i18n-en={item.description.en}
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-md">
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-sm mb-sm">
+                  <span
+                    class="font-label-caps text-label-caps text-secondary tracking-widest"
+                    data-i18n={typeLabelKey[item.type]}
+                  >
+                    {item.type === "work" ? "Experiencia" : item.type === "education" ? "Educación" : "Certificado"}
+                  </span>
+                  {item.period && <span class="text-xs text-on-surface-variant font-code-sm">{item.period}</span>}
+                </div>
+                <h3
+                  class="font-body-bold text-lg text-primary bilingual"
+                  data-i18n-es={item.title.es}
+                  data-i18n-en={item.title.en}
                 >
-                  {item.description.es}
+                  {item.title.es}
+                </h3>
+                <p
+                  class="text-sm text-secondary font-body-bold mb-sm bilingual"
+                  data-i18n-es={item.organization.es}
+                  data-i18n-en={item.organization.en}
+                >
+                  {item.organization.es}
                 </p>
-              )
-            }
+                {
+                  item.description && (
+                    <p
+                      class="text-sm text-on-surface-variant bilingual"
+                      data-i18n-es={item.description.es}
+                      data-i18n-en={item.description.en}
+                    >
+                      {item.description.es}
+                    </p>
+                  )
+                }
+              </div>
+
+              {
+                item.documentUrl && (
+                  <a
+                    class="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary-fixed-dim transition-colors shrink-0 self-end sm:self-center whitespace-nowrap"
+                    href={item.documentUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                    <span data-i18n="experience.viewCertificate">Ver certificado</span>
+                  </a>
+                )
+              }
+            </div>
           </article>
         ))
       }
