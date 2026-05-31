@@ -31,6 +31,8 @@ export const featuredProjects: FeaturedProject[] = [
       en: "Android app to check exchange rates and receive alerts. Modular architecture with real-time API consumption.",
     },
     stack: ["Kotlin", "Android", "REST", "Firebase"],
+    demoUrl:
+      "https://github.com/CesarEduL/AlertaDolar/releases/download/v1.0.0/AlertaDolar-v1.0-release.apk",
     image: "projects/alertadolar.svg",
   },
   {

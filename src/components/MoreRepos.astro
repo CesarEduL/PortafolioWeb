@@ -1,5 +1,6 @@
 ---
 import type { GitHubRepo } from "../lib/github";
+import { isApkDemo } from "../lib/demo-label";
 
 interface Props {
   repos: GitHubRepo[];
@@ -15,6 +16,7 @@ type RepoCard = {
   language: string | null;
   html_url: string;
   homepage: string | null;
+  apkDemo: boolean;
 };
 
 const repoCards: RepoCard[] = repos.map((repo) => ({
@@ -23,6 +25,7 @@ const repoCards: RepoCard[] = repos.map((repo) => ({
   language: repo.language,
   html_url: repo.html_url,
   homepage: repo.homepage,
+  apkDemo: isApkDemo({ language: repo.language, demoUrl: repo.homepage }),
 }));
 ---
 
@@ -101,8 +104,9 @@ const repoCards: RepoCard[] = repos.map((repo) => ({
     const lang = repo.language
       ? `<span class="px-2 py-1 bg-surface-variant text-on-surface-variant text-xs rounded-md font-code-sm border border-outline-glass shrink-0">${escapeHtml(repo.language)}</span>`
       : "";
+    const apkDemo = repo.apkDemo;
     const demo = repo.homepage
-      ? `<a class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2" href="${escapeHtml(repo.homepage)}" rel="noopener noreferrer" target="_blank"><span class="material-symbols-outlined text-[16px]">open_in_new</span><span data-i18n="projects.demo">Demo</span></a>`
+      ? `<a class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2" href="${escapeHtml(repo.homepage)}" rel="noopener noreferrer" target="_blank"${apkDemo ? " download" : ""}><span class="material-symbols-outlined text-[16px]">${apkDemo ? "download" : "open_in_new"}</span><span data-i18n="${apkDemo ? "projects.apk" : "projects.demo"}">${apkDemo ? "APK" : "Demo"}</span></a>`
       : `<span class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2 opacity-40 cursor-not-allowed"><span class="material-symbols-outlined text-[16px]">open_in_new</span><span data-i18n="projects.noDemo">Sin demo</span></span>`;
 
     return `<div class="glass-panel p-lg rounded-2xl neon-border hover-lift flex flex-col h-full">

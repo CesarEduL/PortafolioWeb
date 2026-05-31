@@ -1,5 +1,6 @@
 ---
 import type { EnrichedFeaturedProject } from "../lib/projects";
+import { isApkDemo } from "../lib/demo-label";
 import { getFeaturedImageAccent, getFeaturedImageStackLabel } from "../lib/featured-image";
 
 interface Props {
@@ -24,6 +25,9 @@ const { projects } = Astro.props;
       projects.map((project) => {
         const accent = getFeaturedImageAccent(project);
         const stackLabel = getFeaturedImageStackLabel(project.stack);
+        const apkDemo =
+          !!project.liveUrl &&
+          isApkDemo({ stack: project.stack, demoUrl: project.liveUrl });
 
         return (
           <article class="glass-panel rounded-2xl neon-border hover-lift overflow-hidden flex flex-col h-full">
@@ -86,9 +90,14 @@ const { projects } = Astro.props;
                       href={project.liveUrl}
                       rel="noopener noreferrer"
                       target="_blank"
+                      {...(apkDemo ? { download: "" } : {})}
                     >
-                      <span class="material-symbols-outlined text-[16px]">open_in_new</span>
-                      <span data-i18n="projects.demo">Demo</span>
+                      <span class="material-symbols-outlined text-[16px]">
+                        {apkDemo ? "download" : "open_in_new"}
+                      </span>
+                      <span data-i18n={apkDemo ? "projects.apk" : "projects.demo"}>
+                        {apkDemo ? "APK" : "Demo"}
+                      </span>
                     </a>
                   ) : (
                     <span class="btn-primary text-xs flex items-center gap-1 flex-1 justify-center py-2 opacity-40 cursor-not-allowed">
