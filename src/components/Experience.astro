@@ -1,5 +1,7 @@
 ---
+import CertificateModal from "./CertificateModal.astro";
 import { experienceItems, type ExperienceType } from "../data/experience";
+import { toDrivePreviewUrl, toDriveViewUrl } from "../lib/certificates";
 
 const typeIcon: Record<ExperienceType, string> = {
   work: "work",
@@ -77,15 +79,16 @@ const typeLabelKey: Record<ExperienceType, string> = {
 
               {
                 item.documentUrl && (
-                  <a
+                  <button
                     class="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary-fixed-dim transition-colors shrink-0 self-end sm:self-center whitespace-nowrap"
-                    href={item.documentUrl}
-                    rel="noopener noreferrer"
-                    target="_blank"
+                    data-cert-preview={toDrivePreviewUrl(item.documentUrl)}
+                    data-cert-title={item.title.es}
+                    data-cert-view={toDriveViewUrl(item.documentUrl)}
+                    type="button"
                   >
                     <span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
                     <span data-i18n="experience.viewCertificate">Ver certificado</span>
-                  </a>
+                  </button>
                 )
               }
             </div>
@@ -94,4 +97,6 @@ const typeLabelKey: Record<ExperienceType, string> = {
       }
     </div>
   </div>
+
+  <CertificateModal />
 </section>
