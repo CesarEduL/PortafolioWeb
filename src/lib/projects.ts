@@ -1,4 +1,5 @@
 import type { FeaturedProject } from "../data/featured-projects";
+import { repoDemoUrls } from "../data/repo-demo-urls";
 import type { GitHubRepo } from "./github";
 import { assetUrl } from "./assets";
 
@@ -41,4 +42,13 @@ export function enrichFeaturedProjects(
 export function excludeFeaturedRepos(repos: GitHubRepo[], featured: FeaturedProject[]): GitHubRepo[] {
   const names = new Set(featured.map((p) => p.githubRepo.toLowerCase()));
   return repos.filter((r) => !names.has(r.name.toLowerCase()));
+}
+
+/** Aplica demos manuales (p. ej. GX Store) cuando el repo no tiene homepage en GitHub. */
+export function applyRepoDemoUrls(repos: GitHubRepo[]): GitHubRepo[] {
+  return repos.map((repo) => {
+    const demo = repoDemoUrls[repo.name.toLowerCase()];
+    if (!demo) return repo;
+    return { ...repo, homepage: demo };
+  });
 }

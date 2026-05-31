@@ -3,6 +3,12 @@ import { publicEnv } from "./env";
 export const siteConfig = {
   name: "Cesar Eduardo",
   title: "Cesar Eduardo - Portfolio",
+  /** Ícono de pestaña del navegador */
+  faviconUrl:
+    "https://res.cloudinary.com/drcphk36t/image/upload/q_auto/f_auto/v1780219303/logo_sin_fondo_circulo_qy2gjr.png",
+  /** Logo horizontal del header (reemplaza el texto del nombre) */
+  logoUrl:
+    "https://res.cloudinary.com/drcphk36t/image/upload/q_auto/f_auto/v1780218876/logo_completo_de_lado_sin_fondo_vwc76r.png",
   role: "Android Developer | Software Developer",
   available: true,
   githubUsername: publicEnv.githubUsername,

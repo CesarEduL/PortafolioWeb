@@ -12,10 +12,19 @@ const activeRoute = getActiveRoute(Astro.url.pathname, import.meta.env.BASE_URL)
 >
   <div class="flex justify-between items-center h-14 md:h-16 px-gutter max-w-7xl mx-auto gap-md">
     <a
-      class="font-headline-md text-lg md:text-headline-md font-extrabold text-primary tracking-tighter hover:text-primary-fixed-dim transition-colors shrink-0"
+      class="flex items-center shrink-0 hover:opacity-90 transition-opacity"
       href={routes.home}
+      aria-label={siteConfig.name}
     >
-      {siteConfig.name}
+      <img
+        alt={siteConfig.name}
+        class="site-logo h-8 sm:h-9 md:h-10 w-auto max-w-[11rem] sm:max-w-[13rem] md:max-w-[15rem] object-contain object-left"
+        decoding="async"
+        fetchpriority="high"
+        height={40}
+        src={siteConfig.logoUrl}
+        width={240}
+      />
     </a>
 
     <div class="hidden md:flex items-center gap-xs">

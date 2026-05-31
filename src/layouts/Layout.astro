@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { ViewTransitions } from "astro:transitions";
 import Analytics from "../components/Analytics.astro";
 import SitePreferences from "../components/SitePreferences.astro";
+import { siteConfig } from "../config/site";
 
 interface Props {
   title?: string;
@@ -17,7 +18,10 @@ const { title = "Cesar Eduardo - Portfolio" } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Portafolio de Cesar Eduardo - Android Developer & Software Developer" />
+    <link rel="icon" href={siteConfig.faviconUrl} type="image/png" />
+    <link rel="apple-touch-icon" href={siteConfig.faviconUrl} />
     <title>{title}</title>
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
     <script is:inline>
       (function () {
         const theme = localStorage.getItem("portfolio-theme");

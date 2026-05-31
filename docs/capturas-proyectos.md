@@ -138,6 +138,21 @@ El color del degradado:
 
 Esa rejilla **no** usa `featured-projects.ts`. La descripción sale del campo `description` del **README del repo en GitHub** (API en build). Si GitHub no tiene descripción, se muestra «—».
 
+### Botón Demo en repos del grid inferior
+
+Por defecto el botón **Demo** solo aparece si GitHub tiene `homepage` en el repo. Para enlaces externos (p. ej. [GX Store](https://store.gx.me/es/mods/a1kz32/sonic-frontiers-mod/)), añade una entrada en:
+
+**`src/data/repo-demo-urls.ts`**
+
+```ts
+export const repoDemoUrls: Record<string, string> = {
+  "operagx-sonic-frontiers-mod":
+    "https://store.gx.me/es/mods/a1kz32/sonic-frontiers-mod/",
+};
+```
+
+La clave es el **nombre del repo** en minúsculas. Se aplica en build en `src/lib/projects.ts` → `applyRepoDemoUrls()`.
+
 ---
 
 ## 6. Checklist al añadir un destacado
