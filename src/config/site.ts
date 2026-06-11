@@ -21,7 +21,7 @@ export const siteConfig = {
   githubUrl: "https://github.com/CesarEduL",
   cvUrl: publicEnv.cvUrl,
   profileImage:
-    "https://lh3.googleusercontent.com/aida/ADBb0uiHWATUSx5pv61VXJJaEj-s2fioOgfFcKe3ABFNLu9w5Xzy6yFp9RiMhDCh6qcMjPvJ9eK7ZJnM7LKPS549vkIJiH1HFyhGbzZavO8yiyNqqx2sxGxcIaFFWxIXzBdkROTlHK6e8HfD7o6ViM1YJsmoI-2nt9g9PIbA6W1eXtZHazlof0r3Q--b3_2IFj4VIiXcnmRPRMJRYvDA12e5x2Uk5c0zWhqx4ockKq6eErp3tHv72SRMqHfL5us",
+    "https://res.cloudinary.com/drcphk36t/image/upload/q_auto/f_auto/v1781143908/yo_uphxeo.jpg",
   contactImage:
     "https://lh3.googleusercontent.com/aida-public/AB6AXuC4cB4I2Tp2hvSq90NXb6hq72_ofgcUp1i53FzNpt8zzMIK-hk-jAIP-9AoyRFsCSfGHEUtW3DeWPi3rWgTb_XfFB6s_fduFAc2IBMwL9NCSYbKVr77jNiID13RyFX2OcrNOOxAr5oNVDbbcm6ZqWO5Z76vD2CuMBeD_6_1cgiQFl6Nh8Q3A6fv5GYJ0UjsXCxOlcz7zg9IdUNHyS3RvhIMj3-bO1h5uWOeVC2cAUA6EQsV-OthQ4XAJIhiypdLA349jopQLh_kfsI",
   web3formsAccessKey: publicEnv.web3formsAccessKey,
