@@ -1,0 +1,12 @@
+---
+description: Commits siempre en español (generador Source Control incluido)
+alwaysApply: true
+---
+
+# Commits en español
+
+**CRÍTICO:** Todo mensaje de commit debe estar en **español**. Nunca en inglés.
+
+- Aplica al botón de generar commit en Source Control, al agente y a commits manuales.
+- Nombres técnicos propios (LangSmith, Artemis, NestJS, etc.) pueden quedar en su forma original.
+- Formato detallado: ver regla `commits-formato`.
