@@ -160,7 +160,108 @@ Campos clave: `triggerStatus`, `ticketType` (`full` | `kitchen`), `ticketConfig`
 
 ---
 
-## Piezas clave (por capa)
+## Release en GitHub (repo print-bridge)
+
+El bridge vive en un **repositorio Git propio** (carpeta `print-bridge/` en el monorepo local; en GitHub es la raíz del repo). Los `.exe` / `.dmg` / AppImage **no se suben a mano**: los genera CI al publicar un release.
+
+### Workflow
+
+Archivo: `.github/workflows/print-bridge-release.yml`  
+Nombre en Actions: **Print bridge — build & release (all platforms)**
+
+**Disparadores:**
+
+| Evento | Qué pasa |
+|---|---|
+| **Release published** con tag `print-bridge-*` | Build en 4 runners + adjunta assets al mismo release |
+| **`workflow_dispatch`** (Run workflow) | Solo build; artifacts descargables en Actions (sin release público) |
+
+**Condición del tag:** debe empezar por `print-bridge-` (ej. `print-bridge-1.3.0`). Si publicas un release con otro prefijo, el workflow no corre.
+
+### Jobs paralelos y artefactos
+
+```
+Tag print-bridge-X.Y.Z publicado
+        │
+        ├── windows-latest  → npm ci && npm run dist:win
+        │                     maxy-print-bridge-setup.exe   (NSIS instalador)
+        │                     maxy-print-bridge-win.exe     (portable)
+        │
+        ├── macos-latest    → dist:mac:x64
+        │                     maxy-print-bridge-mac-x64.dmg
+        │
+        ├── macos-latest    → dist:mac:arm64
+        │                     maxy-print-bridge-mac-arm64.dmg
+        │
+        └── ubuntu-latest   → dist:linux
+                              maxy-print-bridge-linux-x64.AppImage
+```
+
+Cada job verifica que el archivo exista antes de subirlo. En **release**, `softprops/action-gh-release` adjunta los binarios al release de GitHub. En **dispatch manual**, van como artifact (`maxy-print-bridge-win-electron`, etc.) — útil para probar sin URL pública.
+
+Build interno: `electron-builder` (ver `electron-builder.yml`); salida en carpeta `release/`.
+
+### Publicar una versión nueva (paso a paso)
+
+1. **Subir versión** en `package.json` del repo (`"version": "1.3.0"`) y merge a `main`.
+2. **GitHub → Releases → Draft a new release**
+   - Tag: `print-bridge-1.3.0` (misma versión que `package.json`)
+   - Target: `main`
+   - **Publish release**
+3. **Actions** → esperar los 4 jobs en verde.
+4. En el release deben aparecer los assets (Windows obligatorio para caja; Mac/Linux si actualizas esos botones en el panel).
+5. **Copiar URLs directas** de cada asset (botón derecho → copiar enlace):
+
+```http
+# Windows — instalador (botón principal del panel)
+https://github.com/{org}/print-bridge/releases/download/print-bridge-1.3.0/maxy-print-bridge-setup.exe
+
+# Windows — portable (enlace secundario opcional)
+https://github.com/{org}/print-bridge/releases/download/print-bridge-1.3.0/maxy-print-bridge-win.exe
+
+# macOS Intel / Apple Silicon / Linux
+…/maxy-print-bridge-mac-x64.dmg
+…/maxy-print-bridge-mac-arm64.dmg
+…/maxy-print-bridge-linux-x64.AppImage
+```
+
+6. **Panel admin** — actualizar variables en GitHub Environment **production** (se inyectan en el build Azure, no en runtime):
+
+| Variable panel | Asset |
+|---|---|
+| `VITE_PRINT_BRIDGE_DOWNLOAD_URL` | `maxy-print-bridge-setup.exe` |
+| `VITE_PRINT_BRIDGE_DOWNLOAD_URL_PORTABLE` | `maxy-print-bridge-win.exe` |
+| `VITE_PRINT_BRIDGE_DOWNLOAD_URL_MAC_X64` | `.dmg` x64 |
+| `VITE_PRINT_BRIDGE_DOWNLOAD_URL_MAC_ARM` | `.dmg` arm64 |
+| `VITE_PRINT_BRIDGE_DOWNLOAD_URL_LINUX` | `.AppImage` |
+| `VITE_PRINT_BRIDGE_WS_URL` | `ws://127.0.0.1:17880` (casi nunca cambia) |
+
+7. **Push / redeploy del panel** → el botón **Descargar programa** en Datos de marca → Impresión en caja apunta al nuevo `.exe`.
+
+**Orden que no conviene invertir:** release del bridge primero, URLs en el panel después, redeploy del panel al final. Sin paso 6–7 el restaurante sigue viendo aviso amarillo o un instalador viejo.
+
+### Prueba rápida sin release
+
+Actions → **Print bridge — build & release** → **Run workflow** → descargar artifact `maxy-print-bridge-win-electron`. No sirve para el botón del panel (necesita URL HTTPS pública del release).
+
+### Conflicto de tags al hacer pull
+
+Si `git pull --tags` falla porque el tag local difiere del remoto: borrar tag local (`git tag -d print-bridge-X.Y.Z`) y volver a pull. Detalle en README del repo.
+
+### Auto-aviso de actualización (Electron Windows)
+
+La app en bandeja consulta **`GET /repos/{org}/print-bridge/releases/latest`**. Compara el tag remoto (`print-bridge-X.Y.Z`) con `app.getVersion()`. Si hay versión mayor, notificación del sistema → clic abre la página del release en GitHub (descarga manual; no hay auto-update silencioso).
+
+---
+
+## Despliegue en restaurante (después del release)
+
+1. Descargar desde el panel (Impresión en caja) o URL del release.
+2. Instalar setup o ejecutar portable → icono en bandeja.
+3. `http://127.0.0.1:17881` → elegir impresora → Guardar.
+4. Operaciones → **Prender impresión** (misma PC que el panel).
+
+---
 
 | Qué | API principal | Panel | App local |
 |---|---|---|---|
