@@ -3,6 +3,7 @@
  * Clave: nombre del repo (insensible a mayúsculas).
  */
 export const repoDemoUrls: Record<string, string> = {
+  infografia: "https://cesaredul.github.io/Infografia/algarrobo/",
   "news-web": "https://stupendous-tiramisu-ee35f3.netlify.app",
   "news-web-taller": "https://stupendous-tiramisu-ee35f3.netlify.app",
   "operagx-sonic-frontiers-mod":
