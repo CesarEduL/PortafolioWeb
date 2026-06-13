@@ -2,6 +2,8 @@
 
 Portafolio estático construido con **Astro + Tailwind CSS**. Se puede desplegar gratis en **GitHub Pages**, **Vercel** o **Netlify**.
 
+**Sitio en vivo:** [cesaredul.github.io/PortafolioWeb](https://cesaredul.github.io/PortafolioWeb)
+
 ## Documentación
 
 | Tema | Archivo |
@@ -14,6 +16,7 @@ Portafolio estático construido con **Astro + Tailwind CSS**. Se puede desplegar
 | Editar experiencia, proyectos, blog, textos | [docs/contenido.md](docs/contenido.md) |
 | Capturas y textos de proyectos destacados | [docs/capturas-proyectos.md](docs/capturas-proyectos.md) |
 | Referencia rápida de personalización | [docs/personalizacion.md](docs/personalizacion.md) |
+| Vista previa al compartir en redes (Open Graph) | [blog/vista-previa-al-compartir](https://cesaredul.github.io/PortafolioWeb/blog/vista-previa-al-compartir/) |
 | Errores frecuentes (npm, deploy, formulario) | [docs/solucion-problemas.md](docs/solucion-problemas.md) |
 
 ## Inicio rápido
