@@ -38,6 +38,7 @@ Solo HTTP. No toca Mongo ni órdenes.
 
 - Base URL: config **URL API Yango** (default público `https://b2b.delivery.yango.tech/.../v2`)
 - Auth: `Authorization: Bearer {token}` — token global de plataforma o por marca en credenciales de integración
+- **Importante:** todas las rutas que llaman a Yango deben resolver el token de marca cuando hay `brandId` u orden conocida. Antes del fix de junio 2026, `check-price` y el cron sí lo hacían; `create-claim` / accept / cancel caían en el token global — ver [yango-token-marca-create-claim-env](/blog/yango-token-marca-create-claim-env/).
 - Convierte camelCase ↔ snake_case en los bordes (la capa intermedia usa DTOs en camelCase del proyecto)
 - Endpoints que usamos: `POST /check-price`, `POST /claims/create?request_id=…`, `GET /claims/info`, confirm/cancel
 
