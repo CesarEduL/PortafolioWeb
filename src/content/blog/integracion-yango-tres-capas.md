@@ -1,7 +1,7 @@
 ---
 title: "Nota para mí: integración Yango en tres capas"
 description: "Cómo el API habla con Yango Delivery: capa HTTP, capa intermedia, orquestación de negocio, estados Yango → Agiliza y campos mínimos para crear claims."
-pubDate: 2026-06-11
+pubDate: 2026-06-17
 tags: ["agiliza360", "api", "nestjs", "yango", "delivery", "webhooks", "restpe"]
 locale: es
 draft: false
@@ -108,11 +108,15 @@ Documentado en la entidad delivery y duplicado en el mapeo de estados (servicio 
 | En destino | `delivery_arrived`, `ready_for_delivery_confirmation`, `pay_waiting` | `delivery_arrived` |
 | Entregado | `delivered` | `delivered` |
 | Cierre | `delivered_finish` | `completed` |
-| Retorno / fallo | `returning`, `returned`, `failed`, `performer_not_found`, … | `failed` |
+| Retornando | `returning` | `returning` |
+| En punto de retorno | `return_arrived`, `ready_for_return_confirmation` | `return_arrived` |
+| Retorno completado | `returned`, `returned_finish` | `returned` |
+| Sin motorizado | `performer_not_found` | `no_driver` |
+| Error técnico | `failed`, `estimating_failed` | `failed` |
 | Cancelación | `cancelled`, `cancelled_by_taxi`, `cancelled_with_payment`, … | `cancelled` |
 | Pre-claim local | (sin claim en Yango aún) | `no_claim` |
 
-Estados **terminales** (liberan nuevo pre-claim manual): `cancelled`, `completed`, `failed`, `delivered`. Utilidad: `isLiveYangoDeliveryStatus` / `isTerminalYangoDeliveryStatus`.
+Estados **terminales** (liberan nuevo pre-claim manual): `cancelled`, `completed`, `failed`, `delivered`, `returned`, `no_driver`. Estados **no terminales** de retorno: `returning`, `return_arrived` — el claim sigue vivo y pueden llegar más webhooks. Utilidad: `isLiveYangoDeliveryStatus` / `isTerminalYangoDeliveryStatus`.
 
 ### Estado interno → orden Agiliza (`OrderFoodStatus`)
 
@@ -122,10 +126,13 @@ Estados **terminales** (liberan nuevo pre-claim manual): `cancelled`, `completed
 |---|---|---|
 | `picked_up` | `EN_CAMINO` | Sí (vía orchestration) |
 | `delivered` | `ENTREGADO` | Sí |
+| `returned` | `CANCELADO` | Sí — «El motorizado retornó el pedido» |
+| `no_driver` | `CANCELADO` | Sí — «No se encontró motorizado disponible» |
 | `cancelled`, `failed` | `CANCELADO` | Sí |
+| `returning`, `return_arrived` | *(sin cambio)* | Solo **tracking** |
 | `searching`, `confirmed`, `pickup_arrived`, `delivery_arrived`, … | *(sin cambio)* | Solo **tracking** |
 
-En estados intermedios se actualiza `deliveryTracking` (motorizado, teléfono, `sharingLink`, `pickupCode`, ETA) pero **no** el status principal del pedido — evita saltar a “entregado” antes de tiempo.
+`returning` y `return_arrived` son estados intermedios del flujo de retorno: el motorizado va en camino de vuelta pero el claim aún está abierto — la orden **no** se cancela hasta recibir `returned` o `returned_finish`. En todos los estados intermedios se actualiza `deliveryTracking` (motorizado, teléfono, `sharingLink`, ETA) pero no el status principal del pedido.
 
 Eventos:
 
