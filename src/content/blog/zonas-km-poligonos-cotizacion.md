@@ -1,15 +1,27 @@
 ---
-title: "Nota para mí: cotización por kilómetros con círculos y polígonos deformados"
-description: "Cómo el panel guarda bandas de km como polígonos, cómo Artemis cotiza con cobertura exterior + precio por banda (incluidas exclusiones deformando el anillo interior), y qué no confundir con la distancia de ruta."
-pubDate: 2026-06-12
+title: "Nota para mí: KM por distancia vs polígono dibujado vs Radio"
+description: "Tres productos de cobertura: kilometraje por ruta, polígono a mano, y Radio (una zona con anillos/bandas). Cómo cotiza el API, exclusión por banda, y qué no mezclar al depurar."
+pubDate: 2026-07-22
 tags: ["agiliza360", "api", "panel", "nestjs", "artemis", "delivery", "zonas", "kilometraje", "maps"]
 locale: es
 draft: false
 ---
 
-Las zonas **Por kilómetros** ya no son solo “calcular distancia y buscar una banda en un array”. El panel dibuja **anillos concéntricos** (1 km, 2 km, 3 km…) como polígonos editables, puedes **deformarlos** (incluir o excluir calles) y el API cotiza en dos pasos: **¿hay cobertura?** y **¿qué precio de banda aplica?**. Esta nota es para no mezclar esas dos cosas cuando depuro un caso raro en WhatsApp.
+Hay **tres** formas de cobro/cobertura que conviene no mezclar. Antes el panel guardaba “km” como anillos en Mongo y el API a veces cotizaba por polígono aunque el tipo dijera kilometraje. Hoy el modelo vuelve a ser claro: **KM = distancia de ruta**, **polígono = geometría** (dibujar o Radio).
 
-> **Datos ficticios:** calles, distritos, tarifas y coordenadas de los ejemplos son placeholders; no corresponden a un local real publicado.
+> **Datos ficticios:** tarifas, calles y coordenadas de los ejemplos son placeholders.
+
+---
+
+## Modelo en una tabla
+
+| Producto | `coverageType` | Qué guarda | Cómo cotiza |
+|---|---|---|---|
+| **Por kilómetros** | `kilometrage` | Solo `distanceRange[]` numérico (min/max km, fee, tiempo). **Sin** geometría. | Distancia de ruta local→cliente cae en una banda → `deliveryFee` |
+| **Polígono Dibujar** | `polygon` | Un `polygonRoute` + `deliveryAmount` (+ `isExclusion` de zona si aplica) | Point-in-polygon → fee fijo |
+| **Polígono Radio** | `polygon` | **Una** zona: `distanceRange[]` con `polygonRoute` por banda + `polygonRoute` raíz = anillo exterior | Anillo **más interno** que contiene el GPS → fee de esa banda (o exclusión) |
+
+Radio **no** crea N zonas con nombre “0–1 km”, “1–2 km”. Es una zona con nombre único y N rangos (como el KM antiguo en UX, pero la evaluación es geométrica).
 
 ---
 
@@ -17,191 +29,213 @@ Las zonas **Por kilómetros** ya no son solo “calcular distancia y buscar una 
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  PANEL (panel-admin-ag360ai)                                      │
-│  CoverageZones → EditZoneModal / KmZoneForm                       │
-│  KmCircleMap: anillos, vértices, clic en borde para nuevo punto   │
-│  Guardado: zone.polygonRoute + distanceRange[].polygonRoute       │
+│  PANEL ADMIN                                                      │
+│  Cobertura → crear/editar                                         │
+│  KM: bandas por km (preview de anillos solo en memoria)           │
+│  Polígono: Dibujar | Radio (anillos editables + rangos)           │
+│  Partners: misma semántica (KM / Dibujar / Radio)                 │
 └───────────────────────────────┬──────────────────────────────────┘
-                                │ PATCH zona / POST km
+                                │ POST/PATCH zonas + quotes
 ┌───────────────────────────────▼──────────────────────────────────┐
-│  API (ssgg)                                                       │
-│  CoverageZone en Mongo (coverageType: kilometrage)                │
-│  DeliveryQuoteService.quoteZoneSet → Artemis / POST quotes        │
+│  API PRINCIPAL                                                    │
+│  CoverageZone / DeliveryPartnerZone                               │
+│  Cotización + nearby: PIP, bandas Radio, KM por ruta              │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-| Pieza | Repo | Rol |
-|---|---|---|
-| Mapa editable | `KmCircleMap.tsx` | Pinta anillos, vértices encima, inserta puntos en el borde |
-| Formulario km | `EditZoneModal.tsx` | Bandas (`kmBands`), guardado por banda |
-| Cotización | `delivery-quote.service.ts` | Point-in-polygon + banda más interna |
-| WhatsApp | `delivery-flow.service.ts` | Llama `findQuotes` con GPS del cliente |
-
----
-
-## Qué guarda el panel al editar una zona km
-
-Al guardar en **Editar zona → Kilometraje**, el payload ordena las bandas por `maxDistanceKm` y persiste:
-
-1. **`distanceRange[]`** — cada banda con `minDistance`, `maxDistance`, `deliveryFee`, `estimatedTime` y su propio **`polygonRoute`** (forma del anillo en el mapa).
-2. **`zone.polygonRoute`** — copia del polígono de la **banda más externa** (la de mayor km). Ese polígono define **cobertura global** en el API.
-
-```ts
-// EditZoneModal — idea del guardado
-const distanceRange = sortedBands.map((band, idx) => ({
-  minDistance: idx === 0 ? 0 : sortedBands[idx - 1].maxDistanceKm,
-  maxDistance: band.maxDistanceKm,
-  deliveryFee: Number(band.deliveryFee),
-  estimatedTime: Number(band.estimatedTime),
-  polygonRoute: cleanPolygonRoute(band.polygonRoute),
-}));
-const polygonRoute = cleanPolygonRoute(outermostBand.polygonRoute);
-```
-
-Si una banda no tiene puntos válidos, se regenera un círculo perfecto con `generateCirclePolygon(centroSucursal, radioMetros)`.
-
-**Importante:** deformar solo el Rango 1 (azul) **no cambia la cobertura máxima** si el polígono exterior (último rango) sigue siendo un círculo de 4 km. La deformación del anillo interior sí cambia **qué precio de banda** aplica cuando el API usa polígonos por banda.
-
----
-
-## Mapa: círculos, deformación y vértices
-
-`KmCircleMap` pinta en dos capas:
-
-1. **Polígonos** — de exterior a interior (para que el anillo pequeño reciba clics).
-2. **Vértices** — siempre encima (`zIndex` alto), arrastrables.
-
-Clic en un borde → `findEdgeInsertAt` (tolerancia ~45 m) → `insertVertexAt` en el estado de la banda.
-
-Detalles que me costaron un bug:
-
-- Las claves de marcadores en Google Maps usan **`pt.id` estable**, no el índice del vértice (si no, al insertar un punto los demás parpadean o desaparecen).
-- `branchCenter` en `EditZoneModal` va con **`useMemo`**; si no, un `useEffect` que recarga `kmBands` desde la zona se dispara en cada render y **borra** el vértice que acabas de añadir.
-
----
-
-## Cómo cotiza el API (dos preguntas)
-
-Cuando Artemis (o `POST /delivery-pricing/quotes`) pide precio para un GPS:
-
-```
-GPS cliente
-    │
-    ▼
-¿Dentro de zone.polygonRoute (polígono EXTERIOR)?
-    │ no  → OUT_OF_POLYGON
-    ▼ sí
-¿Zona activa, horario, exclusiones?
-    │
-    ▼
-Calcular ruta Google/OSRM (solo para distanceKm, ETA y método)
-    │
-    ▼
-¿Qué banda de precio?  → resolveKmBandQuote
-    │
-    ▼
-Precio = deliveryFee de esa banda
-```
-
-### Paso 1 — Cobertura
-
-`findPolygonCoverageZone` usa **solo** `zone.polygonRoute` (anillo exterior guardado) con Turf `booleanPointInPolygon`. Si el cliente está fuera de ese polígono, no hay cotización aunque esté “cerca” en línea recta.
-
-### Paso 2 — Precio por banda
-
-`resolveKmBandQuote` elige la tarifa así:
-
-| Condición | Método |
+| Pieza | Rol |
 |---|---|
-| Alguna banda tiene `polygonRoute` guardado (≥ 3 puntos) | **Polígono**: banda **más interna** cuyo polígono contiene el GPS |
-| Zona legacy sin polígonos por banda | **Ruta**: km de Google/OSRM contra `minDistance` / `maxDistance` |
+| Formulario KM | Bandas numéricas; no persiste `polygonRoute` |
+| Formulario polígono | Toggle Dibujar / Radio; Radio usa lista de rangos + mapa multi-anillo |
+| Cotización | Primero exclusiones/polígonos; si no hay match, KM por ruta |
+| WhatsApp / Artemis | Consume quotes; no recalcula bandas |
+
+---
+
+## KM — solo distancia de ruta
+
+Payload típico (idea):
 
 ```ts
-// Banda más interna que contiene el punto
-for (const band of bandsOrdenadasPorMaxKmAsc) {
-  const poly = band.polygonRoute?.length >= 3
-    ? band.polygonRoute
-    : turf.circle(sucursal, band.maxDistance, { units: 'kilometers' });
-  if (pointInPolygon(cliente, poly)) return band.deliveryFee;
+{
+  coverageType: "kilometrage",
+  distanceRange: [
+    { minDistance: 0, maxDistance: 2, deliveryFee: 5, estimatedTime: 25 },
+    { minDistance: 2, maxDistance: 5, deliveryFee: 9, estimatedTime: 40 },
+  ],
+  // sin polygonRoute
 }
 ```
 
-Orden **ascendente** por `maxDistance`: si el punto cae en el Rango 1 y en el 2, gana el **1** (más interno). Si deformaste el Rango 1 para **sacar** una calle, ese punto no entra en el polígono del Rango 1 y el bucle sigue hasta el Rango 2.
+Flujo:
 
-**No usar distancia de ruta para la banda** cuando hay polígonos guardados: un cliente a ~0,95 km por carretera pero **fuera** del polígono deformado del Rango 1 debe pagar la tarifa del Rango 2, no la del 1.
+```
+GPS cliente
+  → ruta Google/OSRM (distanceKm)
+  → banda donde min ≤ distanceKm ≤ max
+  → deliveryFee
+```
 
-La distancia de ruta sigue usándose para:
-
-- `distanceKm` y `durationMinutes` en la respuesta de cotización
-- `pricingMethod`: `kilometrage_google` / `kilometrage_osrm`
-- Validación de distancia máxima del partner
+En el mapa del panel los “círculos” de KM son **preview**: se generan en cliente para orientar; no definen cobertura en Mongo.
 
 ---
 
-## Ejemplo de depuración: excluir una calle del Rango 1
+## Polígono Dibujar — un área, un precio
+
+```ts
+{
+  coverageType: "polygon",
+  polygonRoute: [/* ≥ 3 puntos */],
+  deliveryAmount: 6.5,
+  estimatedDeliveryTime: "25-35 min",
+  isExclusion: false, // exclusión de zona completa
+}
+```
+
+Si el pin cae dentro → `deliveryAmount`. Si `isExclusion: true` en la zona → rechazo de cobertura (`EXCLUDED_ZONE`), no se cae a KM.
+
+---
+
+## Polígono Radio — una zona, N anillos
+
+Misma `coverageType: 'polygon'`, pero con `distanceRange` geométrico:
+
+```ts
+{
+  coverageType: "polygon",
+  polygonRoute: [/* anillo exterior */],
+  deliveryAmount: 3, // suele alinearse con la banda más interna cobrable
+  distanceRange: [
+    {
+      minDistance: 0,
+      maxDistance: 0.4,
+      deliveryFee: 0,
+      estimatedTime: 0,
+      isExclusion: true,
+      polygonRoute: [/* anillo interno */],
+    },
+    {
+      minDistance: 0.4,
+      maxDistance: 1.2,
+      deliveryFee: 7,
+      estimatedTime: 35,
+      isExclusion: false,
+      polygonRoute: [/* anillo exterior */],
+    },
+  ],
+}
+```
+
+### Cómo elige banda el API
+
+1. ¿El punto está dentro del polígono exterior (`polygonRoute` raíz)? Si no → fuera de esta zona.
+2. Entre las bandas con `polygonRoute`, elige la **más interna** (menor `maxDistance`) cuyo polígono contiene el GPS.
+3. Si esa banda tiene `isExclusion: true` → **excluido** (no fallback a KM).
+4. Si no → `deliveryFee` / tiempo de esa banda.
+
+Orden ascendente por `maxDistance`: si el pin cae en el anillo 1 y en el 2, gana el **1**.
+
+Deformar un anillo en el mapa (Leaflet o Google) cambia **qué banda** aplica; no confundir con km de ruta.
+
+---
+
+## Orden de cotización (resumen)
+
+```
+Activas + horario
+    │
+    ▼
+Exclusiones polígono (zona isExclusion o banda Radio isExclusion)
+    │ hit → EXCLUDED_ZONE
+    ▼
+Match polígono cobrable (Dibujar fee fijo | Radio banda)
+    │ hit → quote geométrico
+    ▼
+Match KM por distanceKm de ruta
+    │ hit → quote kilometrage_*
+    ▼
+Sin cobertura
+```
+
+**Importante:** exclusión por banda Radio **no** debe caer a una zona KM de la misma sucursal. Es “aquí no entregamos”, no “prueba el otro método”.
+
+---
+
+## Ejemplo de depuración: exclusión del anillo interno
 
 Escenario ficticio:
 
-- Sucursal en **zona urbana** (coordenadas omitidas).
-- Rangos: 0–1 km → **tarifa R1**, 1–2 km → **tarifa R2** (valores configurados en el panel, no publicados aquí).
-- **Deformé el polígono del Rango 1** para que **no** cubra la **Calle Norte** (queda solo dentro del anillo de 2 km).
-- GPS de prueba en esa calle: ruta Google ≈ **0,95 km** (por debajo del límite de 1 km en carretera).
+- Zona Radio: 0–0,4 km exclusión; 0,4–1,2 km fee **F2**.
+- Pin a ~250 m del local (dentro del anillo interno).
 
 | Criterio | Resultado |
 |---|---|
-| Solo km de ruta (&lt; 1 km) | Rango 1 → tarifa **R1** ❌ (incorrecto para este caso) |
-| Polígono Rango 1 (deformado, sin la calle) | `inside: false` |
-| Polígono Rango 2 | `inside: true` → tarifa **R2** ✓ |
-
-Tras guardar la zona con `distanceRange[0].polygonRoute` deformado, el API debe devolver el `deliveryFee` del Rango 2 aunque `distanceKm` en la respuesta siga siendo ~0,95.
+| Solo mirar km de ruta (&lt; 0,4) | Podría confundirse con “banda barata” ❌ |
+| Banda más interna (exclusión) | `EXCLUDED_ZONE` ✓ |
+| Pin a 800 m (solo anillo exterior) | Fee **F2** ✓ |
 
 ---
 
-## Flujo Artemis
+## Migración de datos híbridos
 
-`DeliveryFlowService.getDeliveryCostForBrand` llama a `DeliveryQuoteService.findQuotes` con el subdominio de la marca y las coordenadas del cliente. Artemis no calcula bandas por su cuenta: solo muestra el `price` y `estimatedTime` del primer quote aceptado.
+Zonas viejas `kilometrage` + `polygonRoute` (o bandas con geometría) se alinean con un script de split:
 
-Si el cliente dice “me cobró mal el envío”, revisar en este orden:
-
-1. ¿El polígono exterior incluye su GPS? (cobertura)
-2. ¿`distanceRange[i].polygonRoute` del Rango 1 en Mongo coincide con lo del panel?
-3. ¿La cotización usó polígono de banda o fallback por ruta? (zonas sin `polygonRoute` por banda siguen en modo legacy)
-
----
-
-## Tests que me sirven de regresión
-
-En `delivery-quote.service.spec.ts`:
-
-- Multi-banda con `polygonRoute` exterior y `distanceRange` (precio por km de ruta en legacy).
-- Polígono deformado: dentro cotiza, fuera rechaza.
-- **Banda 1 excluye cliente, ruta &lt; 1 km** → precio de banda 2 (caso de exclusión por polígono).
-
-```bash
-cd ssgg && npm test -- --testPathPattern=delivery-quote.service.spec
-```
-
----
-
-## Errores frecuentes (checklist)
-
-1. **Confundir cobertura con precio** — deformar el anillo interior no reduce el alcance máximo salvo que deformes también el **último rango**.
-2. **Esperar Rango 2 solo porque “se ve lejos” en el mapa** — la línea recta puede ser &lt; 1 km; mira el polígono guardado, no solo la escala visual.
-3. **Olvidar guardar** después de deformar — el API lee Mongo, no el estado del modal.
-4. **Zona legacy sin `polygonRoute` por banda** — el API sigue emparejando por km de **ruta**; migrar guardando polígonos por banda en el panel.
-5. **Hot-reload del panel** — tras cambios en `branchCenter` / efectos de carga, verificar que los vértices insertados persisten antes de cotizar.
-
----
-
-## Archivos clave (para la próxima vez)
-
-| Archivo | Qué mirar |
+| Caso | Acción típica |
 |---|---|
-| `ssgg/.../delivery-quote.service.ts` | `quoteZoneSet`, `findInnermostKmBandByPolygon`, `resolveKmBandQuote` |
-| `ssgg/.../delivery-quote.service.spec.ts` | Casos deformados y exclusión por banda |
-| `panel-admin-ag360ai/.../EditZoneModal.tsx` | `kmBands`, `handleSubmit`, `insertBandVertex` |
-| `panel-admin-ag360ai/.../KmCircleMap.tsx` | Capas polígono/vértices, `handleEdgeClick` |
-| `panel-admin-ag360ai/.../polygonEdgeUtils.ts` | Inserción de vértice en borde |
-| `ssgg/docs/migration-km-to-polygon.md` | Contexto migración km → polígono |
+| KM + geometría por banda | → `polygon` formato **Radio** |
+| KM + `distanceRange` sin geometría | → KM puro (quita `polygonRoute` residual) |
+| KM + polígono sin bandas útiles | → `polygon` Dibujar |
 
-Cuando vuelva a tocar esto: si el precio no cuadra, dibujar en el mapa qué anillo contiene el pin del cliente **antes** de culpar a Google Routes.
+Correr primero en dry-run; revisar skips ambiguos a mano.
+
+Para QA en DEV tras un restore: seed con tag `[QA-SEED]` (KM, dibujado, Radio simple, Radio con exclusión de banda).
+
+---
+
+## Partners
+
+Misma semántica que cobertura propia:
+
+- KM → `distanceRange` numérico.
+- Dibujar → `polygonRoute` + `deliveryAmount` (+ exclusión de zona).
+- Radio → `distanceRange` con anillos + `isExclusion` por banda.
+
+El modal de partners en panel admite toggle Dibujar / Radio alineado al flujo de cobertura.
+
+---
+
+## Errores frecuentes
+
+1. **Tratar Radio como “varios KM”** — es polígono; cotiza por PIP de anillo, no por `distanceKm` de ruta.
+2. **Deformar solo el interior y esperar menos cobertura máxima** — el alcance lo marca el anillo exterior.
+3. **Esperar fallback a KM tras exclusión de banda** — no: exclusión corta el camino.
+4. **Reintroducir `polygonRoute` en create KM** — el API debe rechazarlo o ignorarlo; el panel no lo envía.
+5. **Olvidar guardar** tras deformar anillos — quotes leen Mongo.
+
+---
+
+## Checklist al depurar un “precio raro”
+
+1. ¿`coverageType` de la zona en Mongo?
+2. Si Radio: ¿qué anillo contiene el pin? ¿esa banda es exclusión?
+3. Si KM: ¿`distanceKm` de la respuesta cae en qué `min`/`max`?
+4. ¿Hay otra zona polígono más específica (PIP) que ganó antes que el KM?
+5. ¿Seed/migración dejó un híbrido sin migrar?
+
+---
+
+## Archivos clave (capa / rol)
+
+| Capa | Qué mirar |
+|---|---|
+| API — cotización | Quote por set de zonas; outcome Radio (`ok` / `excluded` / `miss`) |
+| API — util bandas | Resolver anillo más interno + `isExclusion` |
+| API — persistencia | Create/update polígono con `distanceRange` opcional; KM sin geometría |
+| API — scripts | Split híbridos; seed QA cobertura |
+| Panel — formularios | KM bandas; polígono Dibujar/Radio; lista de rangos Radio |
+| Panel — mapas | Anillos editables (todos) en Leaflet/Google |
+| Panel — listado | Labels Polígono vs Polígono Radio; badge exclusión por rango |
+| Panel — partners | Create/update zonas KM / Dibujar / Radio |
+| Carta pública | Solo consume endpoint de quotes (sin PIP local) |
+
+Cuando el precio no cuadre: dibujar en el mapa **qué anillo o qué km de ruta** explica el fee **antes** de culpar al proveedor de rutas.
