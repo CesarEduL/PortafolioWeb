@@ -8,4 +8,7 @@ export default defineConfig({
   base: basePath,
   integrations: [tailwind({ applyBaseStyles: false })],
   output: "static",
+  server: {
+    open: true,
+  },
 });
